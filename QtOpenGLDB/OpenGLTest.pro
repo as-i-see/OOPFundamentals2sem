@@ -30,7 +30,9 @@ SOURCES += \
     newactionform.cpp \
     transform3d.cpp \
     cubecreation.cpp \
-    saver.cpp
+    saver.cpp \
+    input.cpp \
+    camera3d.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +41,9 @@ HEADERS += \
     vertex.h \
     transform3d.h \
     cubecreation.h \
-    saver.h
+    saver.h \
+    input.h \
+    camera3d.h
 
 FORMS += \
     mainwindow.ui \

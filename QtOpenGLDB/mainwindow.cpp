@@ -1,5 +1,6 @@
 #include "mainwindow.h"
-
+#include <QDebug>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(resendData(std::vector<std::vector<Vertex>>)), this->saver, SLOT(setData(std::vector<std::vector<Vertex> >)));
     setCentralWidget(ui->openGLWidget);
     this->scene = ui->openGLWidget;
+    this->scene->setFocus();
     connect(this, SIGNAL(sceneChanged()), this->scene, SLOT(reloadScene()));
 }
 

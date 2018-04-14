@@ -9,6 +9,7 @@
 #include "transform3d.h"
 #include <vector>
 #include "vertex.h"
+#include "camera3d.h"
 
 class QOpenGLShaderProgram;
 
@@ -24,7 +25,10 @@ protected:
     void initializeGL();
     void resizeGL(int, int);
     void paintGL();
-    //void teardownGL();
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 protected slots:
     void update();
 private:
@@ -40,12 +44,16 @@ private:
 
     // Shader Information
     int u_modelToWorld;
-    int u_worldToView;
+    int u_worldToCamera;
+    int u_cameraToView;
     QMatrix4x4 m_projection;
     Transform3D m_transform;
+    Camera3D m_camera;
+
     void reloadSetup();
 
     std::vector<std::vector<Vertex>> getCoords();
+    std::vector<Vertex> getAxes();
 };
 
 #endif // SCENE_H
