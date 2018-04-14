@@ -34,11 +34,9 @@ private:
 
     QPoint lastPos;
 
-    QOpenGLBuffer m_vertex;
-    QOpenGLVertexArrayObject m_object;
-    std::vector<QOpenGLBuffer> cubeBuffers;
-    std::vector<QOpenGLVertexArrayObject> cubeObjects;
     QOpenGLShaderProgram *m_program;
+    QOpenGLVertexArrayObject cubeVAO;
+    QOpenGLBuffer cubesVBO;
 
     // Shader Information
     int u_modelToWorld;
@@ -46,8 +44,6 @@ private:
     QMatrix4x4 m_projection;
     Transform3D m_transform;
     void reloadSetup();
-    void clearVBOsAndVAOs();
-
 };
 
 #endif // SCENE_H

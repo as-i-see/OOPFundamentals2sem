@@ -53,26 +53,24 @@ void Scene::initializeGL() {
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/simple.frag");
     m_program->link();
     m_program->bind();
-    m_object.create();
-    m_object.bind();
+
+    cubeVAO.create();
+    cubeVAO.bind();
+
     u_modelToWorld = m_program->uniformLocation("modelToWorld");
     u_worldToView = m_program->uniformLocation("worldToView");
 
-    m_vertex.create();
-    m_vertex.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    m_vertex.bind();
-
-
-    m_vertex.allocate(sg_vertexes, 864);
-
+    cubesVBO.create();
+    cubesVBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    cubesVBO.bind();
 
     m_program->enableAttributeArray(0);
-    m_program->setAttributeBuffer(0, GL_FLOAT, 0, Vertex::PositionTupleSize, Vertex::stride());
     m_program->enableAttributeArray(1);
+    m_program->setAttributeBuffer(0, GL_FLOAT, 0, Vertex::PositionTupleSize, Vertex::stride());
     m_program->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), Vertex::ColorTupleSize, Vertex::stride());
-    m_vertex.release();
-    m_object.release();
 
+    cubesVBO.release();
+    cubeVAO.release();
     m_program->release();
 }
 
@@ -84,22 +82,13 @@ void Scene::resizeGL(int w, int h) {
 void Scene::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
     m_program->bind();
-    m_object.bind();
+    cubeVAO.bind();
     m_program->setUniformValue(u_worldToView, m_projection);
     m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-    {
-        if (!this->figures.first.empty()) {
-            for (int i = 0; i < this->cubeBuffers.size(); i++) {
-                this->cubeBuffers[i].bind();
-                m_program->setAttributeBuffer(0, GL_FLOAT, 0, Vertex::PositionTupleSize, Vertex::stride());
-                m_program->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), Vertex::ColorTupleSize, Vertex::stride());
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-        }
-        else {
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+    if (int nCubes = this->figures.first.size()) {
+        glDrawArrays(GL_TRIANGLES, 0, 36 * nCubes);
     }
+    cubeVAO.release();
     m_program->release();
 }
 
@@ -127,29 +116,15 @@ void Scene::reloadScene() {
 
 void Scene::reloadSetup() {
     m_program->bind();
-    m_object.bind();
-    m_program->enableAttributeArray(0);
-    m_program->enableAttributeArray(1);
-    //this->clearVBOsAndVAOs();
-    this->cubeBuffers = std::vector<QOpenGLBuffer>(this->figures.first.size());
-    //this->cubeObjects = std::vector<QOpenGLVertexArrayObject>(this->figures.first.size());
-    for (int i = 0; i < this->figures.first.size(); i++) {
-        this->cubeBuffers[i].create();
-        this->cubeBuffers[i].setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        this->cubeBuffers[i].bind();
-        this->cubeBuffers[i].allocate(this->figures.first[i].data(), 36 * 6 * sizeof(float));
+    cubeVAO.bind();
+    cubesVBO.bind();
+    cubesVBO.allocate(864 * this->figures.first.size());
+    for (int i = 0 ; i < this->figures.first.size(); i++) {
+        auto ptr = cubesVBO.mapRange(864 * i, 864, QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
+        memcpy(ptr, this->figures.first[i].data(), 864);
+        cubesVBO.unmap();
     }
-    m_object.release();
+    cubesVBO.release();
+    cubeVAO.release();
     m_program->release();
-}
-
-void Scene::clearVBOsAndVAOs() {
-    for (int i = 0; i < this->cubeBuffers.size(); i++) {
-        this->cubeObjects[i].bind();
-        this->cubeBuffers[i].bind();
-        this->cubeBuffers[i].destroy();
-        this->cubeObjects[i].destroy();
-    }
-    this->cubeBuffers.clear();
-    this->cubeObjects.clear();
 }

@@ -32,5 +32,9 @@ void NewActionForm::creationCompleted() {
     emit creationCompleted({this->cubes, 666});
     this->cubesLabel->setText("");
     this->prismsLabel->setText("");
+    for (auto cube : this->cubes) {
+        cube.clear();
+    }
+    cubes.clear();
     this->close();
 }
