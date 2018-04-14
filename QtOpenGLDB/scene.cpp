@@ -3,41 +3,6 @@
 #include <QOpenGLShaderProgram>
 #include "vertex.h"
 
-// Front Verticies
-#define VERTEX_FTR Vertex( QVector3D( 0.5f,  0.5f,  0.5f), QVector3D( 1.0f, 0.0f, 0.0f ) )
-#define VERTEX_FTL Vertex( QVector3D(-0.5f,  0.5f,  0.5f), QVector3D( 0.0f, 1.0f, 0.0f ) )
-#define VERTEX_FBL Vertex( QVector3D(-0.5f, -0.5f,  0.5f), QVector3D( 0.0f, 0.0f, 1.0f ) )
-#define VERTEX_FBR Vertex( QVector3D( 0.5f, -0.5f,  0.5f), QVector3D( 0.0f, 0.0f, 0.0f ) )
-
-// Back Verticies
-#define VERTEX_BTR Vertex( QVector3D( 0.5f,  0.5f, -0.5f), QVector3D( 1.0f, 1.0f, 0.0f ) )
-#define VERTEX_BTL Vertex( QVector3D(-0.5f,  0.5f, -0.5f), QVector3D( 0.0f, 1.0f, 1.0f ) )
-#define VERTEX_BBL Vertex( QVector3D(-0.5f, -0.5f, -0.5f), QVector3D( 1.0f, 0.0f, 1.0f ) )
-#define VERTEX_BBR Vertex( QVector3D( 0.5f, -0.5f, -0.5f), QVector3D( 1.0f, 1.0f, 1.0f ) )
-
-// Create a colored cube
-static Vertex sg_vertexes[] = {
-  // Face 1 (Front)
-    VERTEX_FTR, VERTEX_FTL, VERTEX_FBL,
-    VERTEX_FBL, VERTEX_FBR, VERTEX_FTR,
-  // Face 2 (Back)
-    VERTEX_BBR, VERTEX_BTL, VERTEX_BTR,
-    VERTEX_BTL, VERTEX_BBR, VERTEX_BBL,
-  // Face 3 (Top)
-    VERTEX_FTR, VERTEX_BTR, VERTEX_BTL,
-    VERTEX_BTL, VERTEX_FTL, VERTEX_FTR,
-  // Face 4 (Bottom)
-    VERTEX_FBR, VERTEX_FBL, VERTEX_BBL,
-    VERTEX_BBL, VERTEX_BBR, VERTEX_FBR,
-  // Face 5 (Left)
-    VERTEX_FBL, VERTEX_FTL, VERTEX_BTL,
-    VERTEX_FBL, VERTEX_BTL, VERTEX_BBL,
-  // Face 6 (Right)
-    VERTEX_FTR, VERTEX_FBR, VERTEX_BBR,
-    VERTEX_BBR, VERTEX_BTR, VERTEX_FTR
-};
-
-
 Scene::Scene(QWidget* parent) : QOpenGLWidget(parent)
 {
     m_transform.translate(0.0f, 0.0f, -5.0f);
@@ -47,12 +12,15 @@ void Scene::initializeGL() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
     glEnable(GL_CULL_FACE);
+    glLineWidth(2.0f);
 
     m_program = new QOpenGLShaderProgram();
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/simple.vert");
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/simple.frag");
     m_program->link();
     m_program->bind();
+
+    /////////////////////////////////
 
     cubeVAO.create();
     cubeVAO.bind();
@@ -71,6 +39,38 @@ void Scene::initializeGL() {
 
     cubesVBO.release();
     cubeVAO.release();
+
+    //////////////////////////////////
+
+    coordsVAO.create();
+    coordsVAO.bind();
+
+    u_modelToWorld = m_program->uniformLocation("modelToWorld");
+    u_worldToView = m_program->uniformLocation("worldToView");
+
+    coordsVBO.create();
+    coordsVBO.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    coordsVBO.bind();
+
+    m_program->enableAttributeArray(0);
+    m_program->enableAttributeArray(1);
+    m_program->setAttributeBuffer(0, GL_FLOAT, 0, Vertex::PositionTupleSize, Vertex::stride());
+    m_program->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), Vertex::ColorTupleSize, Vertex::stride());
+
+    coordsVBO.allocate(3 * 2 * 121 * sizeof(Vertex));
+    auto coordsVec = getCoords();
+    for (int i = 0 ; i < 3; i++) {
+        auto ptr = coordsVBO.mapRange(2 * 121 * sizeof(Vertex) * i, 2 * 121 * sizeof(Vertex), QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
+        auto arr = coordsVec[i].data();
+
+        //memcpy(ptr, coordsVec[i].data(), 2 * 121 * sizeof(Vertex));
+    }
+//    coordsVBO.unmap();
+
+
+    coordsVBO.release();
+    coordsVAO.release();
+
     m_program->release();
 }
 
@@ -89,6 +89,13 @@ void Scene::paintGL() {
         glDrawArrays(GL_TRIANGLES, 0, 36 * nCubes);
     }
     cubeVAO.release();
+
+//    coordsVAO.bind();
+//    m_program->setUniformValue(u_worldToView, QMatrix4x4());
+//    m_program->setUniformValue(u_modelToWorld, QMatrix4x4());
+//    glDrawArrays(GL_LINES, 0, 3 * 2 * 121);
+//    coordsVAO.release();
+
     m_program->release();
 }
 
@@ -122,9 +129,56 @@ void Scene::reloadSetup() {
     for (int i = 0 ; i < this->figures.first.size(); i++) {
         auto ptr = cubesVBO.mapRange(864 * i, 864, QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
         memcpy(ptr, this->figures.first[i].data(), 864);
-        cubesVBO.unmap();
     }
+    cubesVBO.unmap();
     cubesVBO.release();
     cubeVAO.release();
     m_program->release();
+}
+
+std::vector<std::vector<Vertex>> Scene::getCoords() {
+    std::vector<std::vector<Vertex>> coords(3);
+    std::vector<QVector3D> colors = {
+        QVector3D(1.0f, 0.0f, 0.0f),
+        QVector3D(0.0f, 1.0f, 0.0f),
+        QVector3D(0.0f, 0.0f, 1.0f),
+    };
+    for (int j = -5; j < 6; j++) {
+        for (int k = -5; k < 6; k++) {
+            coords[0].push_back(Vertex(
+                            QVector3D(-1.0f, float(j), float(k)),
+                            colors[0])
+            );
+            coords[0].push_back(Vertex(
+                            QVector3D(1.0f, float(j), float(k)),
+                            colors[0])
+            );
+        }
+    }
+    for (int j = -5; j < 6; j++) {
+        for (int k = -5; k < 6; k++) {
+            coords[1].push_back(Vertex(
+                            QVector3D(float(j), -1.0f, float(k)),
+                            colors[1])
+            );
+            coords[1].push_back(Vertex(
+                            QVector3D(float(j), 1.0f, float(k)),
+                            colors[1])
+            );
+        }
+    }
+
+    for (int j = -5; j < 6; j++) {
+        for (int k = -5; k < 6; k++) {
+            coords[2].push_back(Vertex(
+                            QVector3D(float(j), float(k), -1.0f),
+                            colors[2])
+            );
+            coords[2].push_back(Vertex(
+                            QVector3D(float(j), float(k), 1.0f),
+                            colors[2])
+            );
+        }
+    }
+    return coords;
 }
