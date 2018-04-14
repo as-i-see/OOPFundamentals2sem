@@ -40,7 +40,7 @@ private:
 
     QOpenGLShaderProgram *m_program;
     QOpenGLVertexArrayObject cubeVAO, coordsVAO;
-    QOpenGLBuffer cubesVBO, coordsVBO;
+    QOpenGLBuffer cubesVBO, coordsVBO, outputVBO;
 
     // Shader Information
     int u_modelToWorld;

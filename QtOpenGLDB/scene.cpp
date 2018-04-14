@@ -163,15 +163,42 @@ void Scene::update()
   m_camera.translate(transSpeed * translation);
 
   if (Input::buttonPressed(Qt::LeftButton)) {
+        glClear(GL_COLOR_BUFFER_BIT);
         m_program->bind();
-        QOpenGLVertexArrayObject masksVAO;
-        masksVAO.create();
-        masksVAO.bind();
-        cubesVBO.bind();
+        QOpenGLBuffer buffer;
+        buffer.create();
+        buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+        buffer.bind();
+        std::vector<std::vector<Vertex>> fake(this->figures.first);
+        for (int j = 0; j < fake.size(); j++) {
+            auto cube = fake[j];
+            for (int i = 0; i < cube.size(); i+=6) {
+                QVector3D color(
+                            (i & 0x000000FF) >>  0 >> j,
+                            (i & 0x0000FF00) >>  8 >> j,
+                            (i & 0x00FF0000) >> 16 >> j
+                );
+                cube[i].setColor(color);
+                cube[i+1].setColor(color);
+                cube[i+2].setColor(color);
+                cube[i+3].setColor(color);
+                cube[i+4].setColor(color);
+                cube[i+5].setColor(color);
+            }
+        }
+        buffer.allocate(864 * fake.size());
+        for (int i = 0 ; i < fake.size(); i++) {
+            auto ptr = buffer.mapRange(864 * i, 864, QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
+            memcpy(ptr, fake[i].data(), 864);
+            buffer.unmap();
+        }
         m_program->enableAttributeArray(0);
         m_program->enableAttributeArray(1);
         m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 24);
-        //m_program->setAttributeBuffer(1, GL_FLOAT, 12, 3, 24);
+        m_program->setAttributeBuffer(1, GL_FLOAT, 12, 3, 24);
+        glDrawArrays(GL_TRIANGLES, 0, 36 * fake.size());
+        buffer.release();
+        m_program->release();
   }
 
   // Update instance information
