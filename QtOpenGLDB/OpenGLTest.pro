@@ -15,7 +15,7 @@ TEMPLATE = app
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
-LIBS += opengl32.lib
+LIBS += opengl32.lib glu32.lib
 LIBS += -L"C:\Program Files (x86)\PostgreSQL\10\lib"
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.

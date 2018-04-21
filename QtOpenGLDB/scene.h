@@ -74,6 +74,8 @@ class Scene : public QOpenGLWidget  //, protected QOpenGLFunctions
   std::vector<Vertex> getAxes();
   std::vector<int> picked;
   std::vector<QVector3D> idColors;
+
+  int retrieveObjectID(int x, int y);
 };
 
 #endif  // SCENE_H
