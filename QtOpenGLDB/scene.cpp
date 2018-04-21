@@ -3,6 +3,7 @@
 #include "cube.h"
 #include "input.h"
 #include "vertex.h"
+#include <QColor>
 #include <QDebug>
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
@@ -186,10 +187,6 @@ void Scene::update() {
     Input::registerMouseRelease(Qt::LeftButton);
   }
 
-  // Update instance information
-  // m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
-  // Input::reset();
-  // Schedule a redraw
   QOpenGLWidget::update();
 }
 
@@ -197,66 +194,67 @@ int Scene::retrieveObjectID(int x, int y) {
 
   int objectsFound = 0;
   int viewportCoords[4] = {0};
+
   unsigned int selectBuffer[32] = {0};
+
   glSelectBuffer(32, selectBuffer);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
-  glClearDepth(1.0f);
-  glDepthFunc(GL_LEQUAL);
+
   glViewport(0, 0, w, h);
   glGetIntegerv(GL_VIEWPORT, viewportCoords);
+
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
-  glLoadIdentity();
 
   glRenderMode(GL_SELECT);
+  glLoadIdentity();
 
-  viewportCoords[2] = w;
-  viewportCoords[3] = h;
+  gluPickMatrix(x, y, 1, 1, viewportCoords);
+  gluPerspective(45.0, (float)w / (float)h, 0.01, 200.0);
 
-  gluPickMatrix(x, y, 2, 2, viewportCoords);
-  gluPerspective(45.0, (float)w / (float)h, 1.0, 200.0);
-
-  GLfloat projectionMatrix[16] = {0};
-  glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
-  QMatrix4x4 projection(projectionMatrix);
-  m_program->bind();
-  cubeVAO.bind();
-  m_program->setUniformValue(u_cameraToView, projection);
-  m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
   glMatrixMode(GL_MODELVIEW);
-  ////////////////////RENDER
-  ///
-  ///
-  ///
-  ///
 
-  m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glLoadIdentity();
+
+  QVector3D pos = m_camera.translation();
+  QVector3D view = m_camera.forward();
+  QVector3D up = m_camera.up();
+  gluLookAt(pos.x(), pos.y(), pos.z(), pos.x() + view.x(), pos.y() + view.y(),
+            pos.z() + view.z(), up.x(), up.y(), up.z());
   glInitNames();
-  glPushName(0);
-
   for (int i = 0; i < this->cubes.size(); i++) {
-    glLoadName(this->cubes[i].ID);
-    m_program->setUniformValue(u_figureColor, this->cubes[i].getColor());
-    glDrawArrays(GL_TRIANGLES, 36 * i, 36);
+    glColor3f(this->cubes[i].getColor().x(), this->cubes[i].getColor().y(),
+              this->cubes[i].getColor().z());
+
+    glPushName(this->cubes[i].ID);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, -5.0f);
+    for (int j = 0; j < 12; j++) {
+      glBegin(GL_TRIANGLES);
+      glVertex3f(this->cubes[i].getDots()[3 * j].position().x(),
+                 this->cubes[i].getDots()[3 * j].position().y(),
+                 this->cubes[i].getDots()[3 * j].position().z());
+      glVertex3f(this->cubes[i].getDots()[3 * j + 1].position().x(),
+                 this->cubes[i].getDots()[3 * j + 1].position().y(),
+                 this->cubes[i].getDots()[3 * j + 1].position().z());
+      glVertex3f(this->cubes[i].getDots()[3 * j + 2].position().x(),
+                 this->cubes[i].getDots()[3 * j + 2].position().y(),
+                 this->cubes[i].getDots()[3 * j + 2].position().z());
+      glEnd();
+    }
+    glPopMatrix();
+    glPopName();
   }
-  glPopName();
-  // glLoadName(0);
+
+  objectsFound = glRenderMode(GL_RENDER);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
-  objectsFound = glRenderMode(GL_RENDER);
 
-  m_projection.setToIdentity();
-  m_projection.perspective(45.0f, w / float(h), 1.0f, 200.0f);
-  m_program->setUniformValue(u_cameraToView, m_projection);
-  cubeVAO.release();
-  m_program->release();
-  // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-  int selectedObject = 0;
   if (objectsFound > 0) {
     unsigned int lowestDepth = selectBuffer[1];
-    selectedObject = selectBuffer[3];
+    int selectedObject = selectBuffer[3];
     for (int i = 1; i < objectsFound; i++) {
       if (selectBuffer[(i * 4) + 1] < lowestDepth) {
         lowestDepth = selectBuffer[(i * 4) + 1];
