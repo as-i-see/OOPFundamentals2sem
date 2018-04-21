@@ -1,5 +1,9 @@
 #ifndef SCENE_H
 #define SCENE_H
+#include "camera3d.h"
+#include "cube.h"
+#include "transform3d.h"
+#include "vertex.h"
 #include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QOpenGLBuffer>
@@ -7,21 +11,17 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 #include <vector>
-#include "camera3d.h"
-#include "cube.h"
-#include "transform3d.h"
-#include "vertex.h"
 
 class QOpenGLShaderProgram;
 
-class Scene : public QOpenGLWidget  //, protected QOpenGLFunctions
+class Scene : public QOpenGLWidget //, protected QOpenGLFunctions
 {
   Q_OBJECT
- public:
+public:
   Scene(QWidget *parent);
   std::vector<Cube> cubes;
   bool multipleFaceMode, multipleFigureMode;
- public slots:
+public slots:
   void reloadScene();
   void rotateX();
   void rotateY();
@@ -36,7 +36,7 @@ class Scene : public QOpenGLWidget  //, protected QOpenGLFunctions
   void moveBackward();
   void moveFrontward();
 
- protected:
+protected:
   void initializeGL();
   void resizeGL(int, int);
   void paintGL();
@@ -44,10 +44,10 @@ class Scene : public QOpenGLWidget  //, protected QOpenGLFunctions
   void keyReleaseEvent(QKeyEvent *event);
   void mousePressEvent(QMouseEvent *event);
   void mouseReleaseEvent(QMouseEvent *event);
- protected slots:
+protected slots:
   void update();
 
- private:
+private:
   QPoint lastPos;
   int w, h;
   QOpenGLShaderProgram *m_program;
@@ -67,15 +67,16 @@ class Scene : public QOpenGLWidget  //, protected QOpenGLFunctions
   QVector3D greenColor = QVector3D(0.0f, 1.0f, 0.0f);
   QVector3D blueColor = QVector3D(0.0f, 0.0f, 1.0f);
   QVector3D whiteColor = QVector3D(1.0f, 1.0f, 1.0f);
+  QVector3D selectionColor =
+      QVector3D(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
 
   void reloadSetup();
 
   std::vector<std::vector<Vertex>> getCoords();
   std::vector<Vertex> getAxes();
-  std::vector<int> picked;
-  std::vector<QVector3D> idColors;
+  std::vector<int> selected;
 
   int retrieveObjectID(int x, int y);
 };
 
-#endif  // SCENE_H
+#endif // SCENE_H

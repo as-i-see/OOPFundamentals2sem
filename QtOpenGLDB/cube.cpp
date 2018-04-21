@@ -1,26 +1,33 @@
 #include "cube.h"
 #include <cmath>
 
-Cube::Cube() { this->color = QVector3D(1.0f, 1.0f, 1.0f); }
+Cube::Cube() {
+  this->color = QVector3D(1.0f, 1.0f, 1.0f);
+  this->selected = false;
+}
 
-Cube::Cube(const Cube& anotherCube) {
+Cube::Cube(const Cube &anotherCube) {
   this->dots = std::vector<Vertex>(anotherCube.dots);
   this->color = QVector3D(anotherCube.color);
+  this->selected = anotherCube.selected;
 }
 
 Cube::Cube(std::vector<Vertex> dots, QVector3D color)
-    : dots(dots), color(color) {}
+    : dots(dots), color(color) {
+  this->selected = false;
+}
 
 Cube::~Cube() { this->dots.clear(); }
 
-std::vector<Vertex>& Cube::getDots() { return this->dots; }
+std::vector<Vertex> &Cube::getDots() { return this->dots; }
 
 QVector3D Cube::getColor() { return this->color; }
 
-void Cube::setColor(const QVector3D& color) { this->color = color; }
+void Cube::setColor(const QVector3D &color) { this->color = color; }
 
 bool Cube::isValid() {
-  if (this->dots.size() != 4) return false;
+  if (this->dots.size() != 4)
+    return false;
   float sideLen =
       this->dots[0].position().distanceToPoint(this->dots[1].position());
   float diagonalLen = pow(2.0, 0.5) * sideLen;
@@ -65,3 +72,7 @@ void Cube::reconstructCube() {
       VERTEX_FTR, VERTEX_FBR, VERTEX_BBR, VERTEX_BBR, VERTEX_BTR, VERTEX_FTR};
   this->dots = std::move(vertices);
 }
+
+void Cube::setSelected(bool selected) { this->selected = selected; }
+
+bool Cube::isSelected() { return this->selected; }

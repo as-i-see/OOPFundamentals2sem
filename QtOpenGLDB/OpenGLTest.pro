@@ -30,11 +30,12 @@ SOURCES += \
     newactionform.cpp \
     transform3d.cpp \
     cubecreation.cpp \
-    saver.cpp \
     input.cpp \
     camera3d.cpp \
     toolbar.cpp \
-    cube.cpp
+    cube.cpp \
+    saver.cpp \
+    loader.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,17 +44,19 @@ HEADERS += \
     vertex.h \
     transform3d.h \
     cubecreation.h \
-    saver.h \
     input.h \
     camera3d.h \
     toolbar.h \
-    cube.h
+    cube.h \
+    saver.h \
+    loader.h
 
 FORMS += \
     mainwindow.ui \
     newactionform.ui \
     cubecreation.ui \
-    saver.ui
+    saver.ui \
+    loader.ui
 
 DISTFILES += \
     shaders/simple.frag \

@@ -11,6 +11,7 @@
 #include <QScreen>
 #include <QString>
 #include <QSurfaceFormat>
+#include <algorithm>
 
 Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
   QSurfaceFormat format;
@@ -126,8 +127,10 @@ void Scene::paintGL() {
   cubeVAO.bind();
   m_program->setUniformValue(u_cameraToView, m_projection);
   for (int i = 0; i < this->cubes.size(); i++) {
-    m_program->setUniformValue(u_figureColor, this->cubes[i].getColor());
-    // m_program->setUniformValue(u_figureColor, this->idColors[i]);
+    if (this->cubes[i].isSelected())
+      m_program->setUniformValue(u_figureColor, this->selectionColor);
+    else
+      m_program->setUniformValue(u_figureColor, this->cubes[i].getColor());
     glDrawArrays(GL_TRIANGLES, 36 * i, 36);
   }
   cubeVAO.release();
@@ -183,7 +186,17 @@ void Scene::update() {
     int properX = localClick.x();
     int properY = h - localClick.y();
     int selectedObjectID = retrieveObjectID(properX, properY);
-    qDebug() << selectedObjectID;
+    if (selectedObjectID) {
+      int ID = selectedObjectID - 1;
+      if (this->cubes[ID].isSelected()) {
+        this->cubes[ID].setSelected(false);
+        auto pos = std::find(this->selected.begin(), this->selected.end(), ID);
+        this->selected.erase(pos);
+      } else {
+        this->cubes[ID].setSelected(true);
+        this->selected.push_back(ID);
+      }
+    }
     Input::registerMouseRelease(Qt::LeftButton);
   }
 
@@ -272,12 +285,14 @@ void Scene::reloadScene() {
 }
 
 void Scene::reloadSetup() {
+  this->selected.clear();
   m_program->bind();
   cubeVAO.bind();
   cubesVBO.bind();
   cubesVBO.allocate(864 * this->cubes.size());
   for (int i = 0; i < this->cubes.size(); i++) {
-    this->cubes[i].ID = 100 + i;
+    this->cubes[i].ID = i + 1;
+    this->cubes[i].setSelected(false);
     auto ptr = cubesVBO.mapRange(864 * i, 864,
                                  QOpenGLBuffer::RangeInvalidate |
                                      QOpenGLBuffer::RangeWrite);
@@ -287,14 +302,6 @@ void Scene::reloadSetup() {
   cubesVBO.release();
   cubeVAO.release();
   m_program->release();
-  this->idColors.clear();
-  for (int i = 0; i < this->cubes.size(); i++) {
-    int r = 2 * i + 100;
-    int g = 2 * i + 20;
-    int b = 2 * i + 180;
-    QVector3D color(r / 255.0f, g / 255.0f, b / 255.0f);
-    this->idColors.push_back(color);
-  }
 }
 
 std::vector<std::vector<Vertex>> Scene::getCoords() {
