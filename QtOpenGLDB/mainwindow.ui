@@ -17,11 +17,14 @@
    <widget class="Scene" name="openGLWidget">
     <property name="geometry">
      <rect>
-      <x>9</x>
-      <y>9</y>
+      <x>0</x>
+      <y>0</y>
       <width>300</width>
-      <height>300</height>
+      <height>341</height>
      </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -45,7 +48,15 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
    </widget>
+   <widget class="QMenu" name="menuSelection">
+    <property name="title">
+     <string>Selection</string>
+    </property>
+    <addaction name="actionMultiple_face_selection"/>
+    <addaction name="actionMultiple_figure_selection"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSelection"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew">
@@ -66,6 +77,32 @@
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSingle_selection">
+   <property name="text">
+    <string>Single face selection</string>
+   </property>
+  </action>
+  <action name="actionMultiple_face_selection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Multiple face selection</string>
+   </property>
+  </action>
+  <action name="actionSingle_figure_selection">
+   <property name="text">
+    <string>Single figure selection</string>
+   </property>
+  </action>
+  <action name="actionMultiple_figure_selection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Multiple figure selection</string>
    </property>
   </action>
  </widget>

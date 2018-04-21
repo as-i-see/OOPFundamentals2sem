@@ -2,33 +2,33 @@
 #define SAVER_H
 
 #include <QMainWindow>
-#include <QtSql>
 #include <QSqlQuery>
-#include "vertex.h"
+#include <QtSql>
 #include <vector>
+#include "cube.h"
+#include "vertex.h"
 
 namespace Ui {
 class Saver;
 }
 
-class Saver : public QMainWindow
-{
-    Q_OBJECT
+class Saver : public QMainWindow {
+  Q_OBJECT
 
-public:
-    explicit Saver(QMainWindow *parent = 0);
-    ~Saver();
-public slots:
-    void setData(std::vector<std::vector<Vertex>>);
-private slots:
-    bool persist();
+ public:
+  explicit Saver(QMainWindow *parent = 0);
+  ~Saver();
+ public slots:
+  void setData(std::vector<Cube>);
+ private slots:
+  bool persist();
 
-private:
-    Ui::Saver *ui;
-    QSqlDatabase db;
-    QSqlQuery *saveCubeVertex, *savePrismVertex;
-    QString cubeTableName, prismTableName;
-    std::vector<std::vector<Vertex>> data;
+ private:
+  Ui::Saver *ui;
+  QSqlDatabase db;
+  QSqlQuery *saveCubeVertex, *savePrismVertex;
+  QString cubeTableName, prismTableName;
+  std::vector<Cube> data;
 };
 
-#endif // SAVER_H
+#endif  // SAVER_H

@@ -1,13 +1,12 @@
 #ifndef TRANSFORM3D_H
 #define TRANSFORM3D_H
 
-#include <QVector3D>
-#include <QQuaternion>
 #include <QMatrix4x4>
+#include <QQuaternion>
+#include <QVector3D>
 
-class Transform3D
-{
-public:
+class Transform3D {
+ public:
   // Constructors
   Transform3D();
 
@@ -35,12 +34,12 @@ public:
   void setRotation(float angle, float ax, float ay, float az);
 
   // Accessors
-  const QVector3D& translation() const;
-  const QVector3D& scale() const;
-  const QQuaternion& rotation() const;
-  const QMatrix4x4& toMatrix();
+  const QVector3D &translation() const;
+  const QVector3D &scale() const;
+  const QQuaternion &rotation() const;
+  const QMatrix4x4 &toMatrix();
 
-private:
+ private:
   bool m_dirty;
   QVector3D m_translation;
   QVector3D m_scale;
@@ -48,7 +47,8 @@ private:
   QMatrix4x4 m_world;
 
 #ifndef QT_NO_DATASTREAM
-  friend QDataStream &operator<<(QDataStream &out, const Transform3D &transform);
+  friend QDataStream &operator<<(QDataStream &out,
+                                 const Transform3D &transform);
   friend QDataStream &operator>>(QDataStream &in, Transform3D &transform);
 #endif
 };
@@ -58,25 +58,50 @@ Q_DECLARE_TYPEINFO(Transform3D, Q_MOVABLE_TYPE);
 inline Transform3D::Transform3D() : m_dirty(true), m_scale(1.0f, 1.0f, 1.0f) {}
 
 // Transform By (Add/Scale)
-inline void Transform3D::translate(float dx, float dy,float dz) { translate(QVector3D(dx, dy, dz)); }
-inline void Transform3D::scale(float dx, float dy,float dz) { scale(QVector3D(dx, dy, dz)); }
-inline void Transform3D::scale(float factor) { scale(QVector3D(factor, factor, factor)); }
-inline void Transform3D::rotate(float angle, const QVector3D &axis) { rotate(QQuaternion::fromAxisAndAngle(axis, angle)); }
-inline void Transform3D::rotate(float angle, float ax, float ay,float az) { rotate(QQuaternion::fromAxisAndAngle(ax, ay, az, angle)); }
-inline void Transform3D::grow(float dx, float dy, float dz) { grow(QVector3D(dx, dy, dz)); }
-inline void Transform3D::grow(float factor) { grow(QVector3D(factor, factor, factor)); }
+inline void Transform3D::translate(float dx, float dy, float dz) {
+  translate(QVector3D(dx, dy, dz));
+}
+inline void Transform3D::scale(float dx, float dy, float dz) {
+  scale(QVector3D(dx, dy, dz));
+}
+inline void Transform3D::scale(float factor) {
+  scale(QVector3D(factor, factor, factor));
+}
+inline void Transform3D::rotate(float angle, const QVector3D &axis) {
+  rotate(QQuaternion::fromAxisAndAngle(axis, angle));
+}
+inline void Transform3D::rotate(float angle, float ax, float ay, float az) {
+  rotate(QQuaternion::fromAxisAndAngle(ax, ay, az, angle));
+}
+inline void Transform3D::grow(float dx, float dy, float dz) {
+  grow(QVector3D(dx, dy, dz));
+}
+inline void Transform3D::grow(float factor) {
+  grow(QVector3D(factor, factor, factor));
+}
 
 // Transform To (Setters)
-inline void Transform3D::setTranslation(float x, float y, float z) { setTranslation(QVector3D(x, y, z)); }
-inline void Transform3D::setScale(float x, float y, float z) { setScale(QVector3D(x, y, z)); }
+inline void Transform3D::setTranslation(float x, float y, float z) {
+  setTranslation(QVector3D(x, y, z));
+}
+inline void Transform3D::setScale(float x, float y, float z) {
+  setScale(QVector3D(x, y, z));
+}
 inline void Transform3D::setScale(float k) { setScale(QVector3D(k, k, k)); }
-inline void Transform3D::setRotation(float angle, const QVector3D &axis) { setRotation(QQuaternion::fromAxisAndAngle(axis, angle)); }
-inline void Transform3D::setRotation(float angle, float ax, float ay, float az) { setRotation(QQuaternion::fromAxisAndAngle(ax, ay, az, angle)); }
+inline void Transform3D::setRotation(float angle, const QVector3D &axis) {
+  setRotation(QQuaternion::fromAxisAndAngle(axis, angle));
+}
+inline void Transform3D::setRotation(float angle, float ax, float ay,
+                                     float az) {
+  setRotation(QQuaternion::fromAxisAndAngle(ax, ay, az, angle));
+}
 
 // Accessors
-inline const QVector3D& Transform3D::translation() const { return m_translation; }
-inline const QVector3D& Transform3D::scale() const { return m_scale; }
-inline const QQuaternion& Transform3D::rotation() const { return m_rotation; }
+inline const QVector3D &Transform3D::translation() const {
+  return m_translation;
+}
+inline const QVector3D &Transform3D::scale() const { return m_scale; }
+inline const QQuaternion &Transform3D::rotation() const { return m_rotation; }
 
 // Qt Streams
 #ifndef QT_NO_DEBUG_STREAM
@@ -88,4 +113,4 @@ QDataStream &operator<<(QDataStream &out, const Transform3D &transform);
 QDataStream &operator>>(QDataStream &in, Transform3D &transform);
 #endif
 
-#endif // TRANSFORM3D_H
+#endif  // TRANSFORM3D_H

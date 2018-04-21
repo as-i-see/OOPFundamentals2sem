@@ -1,16 +1,13 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <Qt>
 #include <QPoint>
+#include <Qt>
 
-class Input
-{
-public:
-
+class Input {
+ public:
   // Possible key states
-  enum InputState
-  {
+  enum InputState {
     InputInvalid,
     InputRegistered,
     InputUnregistered,
@@ -31,8 +28,7 @@ public:
   static QPoint mousePosition();
   static QPoint mouseDelta();
 
-private:
-
+ private:
   // State updating
   static void update();
   static void registerKeyPress(int key);
@@ -43,34 +39,28 @@ private:
   friend class Scene;
 };
 
-inline bool Input::keyTriggered(Qt::Key key)
-{
+inline bool Input::keyTriggered(Qt::Key key) {
   return keyState(key) == InputTriggered;
 }
 
-inline bool Input::keyPressed(Qt::Key key)
-{
+inline bool Input::keyPressed(Qt::Key key) {
   return keyState(key) == InputPressed;
 }
 
-inline bool Input::keyReleased(Qt::Key key)
-{
+inline bool Input::keyReleased(Qt::Key key) {
   return keyState(key) == InputReleased;
 }
 
-inline bool Input::buttonTriggered(Qt::MouseButton button)
-{
+inline bool Input::buttonTriggered(Qt::MouseButton button) {
   return buttonState(button) == InputTriggered;
 }
 
-inline bool Input::buttonPressed(Qt::MouseButton button)
-{
+inline bool Input::buttonPressed(Qt::MouseButton button) {
   return buttonState(button) == InputPressed;
 }
 
-inline bool Input::buttonReleased(Qt::MouseButton button)
-{
+inline bool Input::buttonReleased(Qt::MouseButton button) {
   return buttonState(button) == InputReleased;
 }
 
-#endif // INPUT_H
+#endif  // INPUT_H

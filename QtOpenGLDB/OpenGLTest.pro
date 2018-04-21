@@ -32,7 +32,9 @@ SOURCES += \
     cubecreation.cpp \
     saver.cpp \
     input.cpp \
-    camera3d.cpp
+    camera3d.cpp \
+    toolbar.cpp \
+    cube.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +45,9 @@ HEADERS += \
     cubecreation.h \
     saver.h \
     input.h \
-    camera3d.h
+    camera3d.h \
+    toolbar.h \
+    cube.h
 
 FORMS += \
     mainwindow.ui \
