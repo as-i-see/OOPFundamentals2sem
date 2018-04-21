@@ -24,6 +24,7 @@ class Cube : public QObject {
   void setColor(const QVector3D&);
   bool isValid();
   void reconstructCube();
+  unsigned int ID;
 
  private:
   std::vector<Vertex> dots;

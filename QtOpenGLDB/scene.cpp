@@ -1,10 +1,12 @@
 #include "scene.h"
 #include <QDebug>
+#include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
 #include <QPoint>
 #include <QScreen>
 #include <QString>
 #include <QSurfaceFormat>
+#include "GL/GLU.h"
 #include "cube.h"
 #include "input.h"
 #include "vertex.h"
@@ -163,56 +165,82 @@ void Scene::update() {
   m_camera.translate(transSpeed * translation);
 
   if (Input::buttonPressed(Qt::LeftButton)) {
+    ////////
+    /// \brief globalClick
+    ////
+    ///
+    ///
+    ///
     QPoint globalClick(Input::mousePosition().x(), Input::mousePosition().y());
     QPoint localClick = this->mapFromGlobal(globalClick);
     int properX = localClick.x();
     int properY = h - localClick.y();
-    m_program->bind();
-    cubeVAO.bind();
 
-    m_program->setUniformValue(u_cameraToView, m_projection);
-    m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
-    m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-    glViewport(0, 0, w, h);
+    int objectsFound = 0;
+    int viewportCoords[4] = {0};
+    unsigned int selectBuffer[32] = {0};
+    glSelectBuffer(32, selectBuffer);
+    glGetIntegerv(GL_VIEWPORT, viewportCoords);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glRenderMode(GL_SELECT);
+    glLoadIdentity();
+    viewportCoords[2] = w;
+    viewportCoords[3] = h;
+
+    gluPickMatrix(properX, properY, 1, 1, viewportCoords);
+    gluPerspective(45,
+                   (float)this->size().width() / (float)this->size().height(),
+                   0.01, 1000.0);
+
+    GLfloat projectionMatrix[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
+    m_program->setUniformValue("u_cameraToView", QMatrix4x4(projectionMatrix));
+
+    glMatrixMode(GL_MODELVIEW);
+    ////////////////////RENDER
+    ///
+    ///
+    ///
+    ///
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+
+    QVector3D pos = m_camera.translation();
+    QVector3D view = m_camera.forward();
+    QVector3D up = m_camera.up();
+    gluLookAt(pos.x(), pos.y(), pos.z(), pos.x() + view.x(), pos.y() + view.y(),
+              pos.z() + view.z(), up.x(), up.y(), up.z());
+    glInitNames();
+
     for (int i = 0; i < this->cubes.size(); i++) {
-      m_program->setUniformValue(u_figureColor, this->idColors[i]);
+      glPushName(this->cubes[i].ID);
+      m_program->setUniformValue(u_figureColor, this->cubes[i].getColor());
       glDrawArrays(GL_TRIANGLES, 36 * i, 36);
+      glPopName();
     }
-    glFlush();
-    glFinish();
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    unsigned char *data = new unsigned char[4];
-    //    qDebug() << "widget size: " << this->size().width() << "x"
-    //             << this->size().height() << "\n";
-    //    qDebug() << Input::mousePosition().x() << "x" <<
-    //    Input::mousePosition().y()
-    //             << "\n";
-    // int properX = Input::mousePosition().x();
-    // int properY = this->size().height() - (Input::mousePosition().y() - 55);
-    // qDebug() << "my: " << properX << "x" << properY << "\n";
-    //    qDebug() << "resize widget size: " << w << "x" << h << "\n";
-    //    int viewport[4];
-    //    glGetIntegerv(GL_VIEWPORT, viewport);
-    //    qDebug() << viewport[0] << " " << viewport[1] << " " << viewport[2] <<
-    //    " "
-    //             << viewport[3] << "\n";
-    // qDebug() << "openglwidget x: " << this->x() << " y: " << this->y() <<
-    // "\n";
-
-    // qDebug() << "localclick x: " << properX << " y: " << properY << "\n";
-    glReadPixels(properX, properY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    qDebug() << "item: " << data[0] << "\n";
-    // Input::reset();
     cubeVAO.release();
     m_program->release();
+    ///////////////////////
+
+    objectsFound = glRenderMode(GL_RENDER);
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    if (objectsFound > 0) {
+      unsigned int lowestDepth = selectBuffer[1];
+      int selectedObject = selectBuffer[3];
+      for (int i = 1; i < objectsFound; i++) {
+        if (selectBuffer[(i * 4) + 1] < lowestDepth) {
+          lowestDepth = selectBuffer[(i * 4) + 1];
+          selectedObject = selectBuffer[(i * 4) + 3];
+        }
+      }
+      // return selectedObject;
+    }
+    // return 0;
   }
 
-  // Update instance information
-  // m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
-
-  // Schedule a redraw
   QOpenGLWidget::update();
 }
 
@@ -227,6 +255,7 @@ void Scene::reloadSetup() {
   cubesVBO.bind();
   cubesVBO.allocate(864 * this->cubes.size());
   for (int i = 0; i < this->cubes.size(); i++) {
+    this->cubes[i].ID = 100 + i;
     auto ptr = cubesVBO.mapRange(
         864 * i, 864,
         QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
