@@ -1,8 +1,8 @@
 #include "toolbar.h"
 
-ToolBar::ToolBar(QWidget* parent) : QToolBar(parent) {}
+ToolBar::ToolBar(QWidget *parent) : QToolBar(parent) {}
 
-ToolBar::ToolBar(QWidget* parent, Scene* glWidget) : QToolBar(parent) {
+ToolBar::ToolBar(QWidget *parent, Scene *glWidget) : QToolBar(parent) {
   xRotationAction =
       new QAction(QIcon(":/images/x-rotation.jpg"), QString("X-rotate"), this);
   connect(xRotationAction, SIGNAL(triggered(bool)), glWidget, SLOT(rotateX()));
@@ -70,6 +70,13 @@ ToolBar::ToolBar(QWidget* parent, Scene* glWidget) : QToolBar(parent) {
   connect(zRightAction, SIGNAL(triggered(bool)), glWidget,
           SLOT(moveFrontward()));
   addAction(zRightAction);
+
+  addSeparator();
+  pickColorAction =
+      new QAction(QIcon(":/images/palette.jpg"), QString("Change color"), this);
+  connect(pickColorAction, SIGNAL(triggered(bool)), glWidget->colorDialog,
+          SLOT(exec()));
+  addAction(pickColorAction);
 }
 
 ToolBar::~ToolBar() {

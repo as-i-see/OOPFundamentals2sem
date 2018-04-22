@@ -19,7 +19,7 @@ Saver::~Saver() { delete ui; }
 bool Saver::persist() {
   QString tableName = ui->lineEdit->text();
   this->cubeTableName = tableName + "_cubes";
-  // this->prismTableName = tableName + "_prisms";
+  this->prismTableName = tableName + "_prisms";
   bool ok = this->db.open();
   this->db.exec(QString("CREATE TABLE " + cubeTableName +
                         " ("
@@ -27,15 +27,12 @@ bool Saver::persist() {
                         "  y   NUMERIC(6,4), "
                         "  z   NUMERIC(6,4)  "
                         ")"));
-  //  this->db.exec(QString("CREATE TABLE " + prismTableName +
-  //                        " ("
-  //                        "  xPos   NUMERIC(6,4), "
-  //                        "  yPos   NUMERIC(6,4), "
-  //                        "  zPos   NUMERIC(6,4), "
-  //                        "  xColor NUMERIC(6,4), "
-  //                        "  yColor NUMERIC(6,4), "
-  //                        "  zColor NUMERIC(6,4)  "
-  //                        ")"));
+  this->db.exec(QString("CREATE TABLE " + prismTableName +
+                        " ("
+                        "  x   NUMERIC(6,4), "
+                        "  y   NUMERIC(6,4), "
+                        "  z   NUMERIC(6,4)  "
+                        ")"));
   this->saveCubeVertex->prepare(
       QString("INSERT INTO " + this->cubeTableName + " VALUES (?, ?, ?)"));
   this->savePrismVertex->prepare(
@@ -55,6 +52,24 @@ bool Saver::persist() {
     this->saveCubeVertex->bindValue(2, cube.getColor().z());
     if (!this->saveCubeVertex->exec()) {
       QSqlError err = this->saveCubeVertex->lastError();
+      std::cout << err.databaseText().toStdString();
+    }
+  }
+  for (auto prism : this->prisms) {
+    for (auto vertex : prism.getDots()) {
+      this->savePrismVertex->bindValue(0, vertex.position().x());
+      this->savePrismVertex->bindValue(1, vertex.position().y());
+      this->savePrismVertex->bindValue(2, vertex.position().z());
+      if (!this->savePrismVertex->exec()) {
+        QSqlError err = this->savePrismVertex->lastError();
+        std::cout << err.databaseText().toStdString();
+      }
+    }
+    this->savePrismVertex->bindValue(0, prism.getColor().x());
+    this->savePrismVertex->bindValue(1, prism.getColor().y());
+    this->savePrismVertex->bindValue(2, prism.getColor().z());
+    if (!this->savePrismVertex->exec()) {
+      QSqlError err = this->savePrismVertex->lastError();
       std::cout << err.databaseText().toStdString();
     }
   }

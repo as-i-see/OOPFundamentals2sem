@@ -29,6 +29,7 @@ public:
   void setSelected(bool);
   bool isSelected();
   Transform3D transform;
+  void draw();
 
 private:
   std::vector<Vertex> dots;

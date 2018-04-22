@@ -18,7 +18,7 @@ Loader::~Loader() { delete ui; }
 void Loader::load() {
   QString tableName = ui->lineEdit->text();
   this->cubeTableName = tableName + "_cubes";
-  // this->prismTableName = tableName + "_prisms";
+  this->prismTableName = tableName + "_prisms";
   bool ok = this->db.open();
   QSqlQuery loadCubesQuery(this->db);
   loadCubesQuery.setForwardOnly(true);
@@ -44,6 +44,29 @@ void Loader::load() {
       continue;
     }
     aCube.getDots()[nCubeVertices++] = Vertex(vertexVector);
+  }
+
+  QSqlQuery loadPrimsQuery(this->db);
+  loadPrimsQuery.setForwardOnly(true);
+
+  loadPrimsQuery.exec(
+      QString("SELECT x, y, z FROM " + this->prismTableName + ";"));
+
+  int nPrismVertices = 0;
+  Prism aPrism;
+  aPrism.getDots().resize(36);
+
+  while (loadPrimsQuery.next()) {
+    QVector3D vertexVector(loadPrimsQuery.value(0).toFloat(),
+                           loadPrimsQuery.value(1).toFloat(),
+                           loadPrimsQuery.value(2).toFloat());
+    if (nPrismVertices == 36) {
+      aPrism.setColor(vertexVector);
+      prisms.push_back(aPrism);
+      nPrismVertices = 0;
+      continue;
+    }
+    aPrism.getDots()[nPrismVertices++] = Vertex(vertexVector);
   }
   emit sendData({cubes, prisms});
   this->db.close();

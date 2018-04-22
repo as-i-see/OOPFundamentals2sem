@@ -1,4 +1,5 @@
 #include "prism.h"
+#include <QOpenGLFunctions>
 
 Prism::Prism() {
   this->color = QVector3D(1.0f, 1.0f, 1.0f);
@@ -63,3 +64,52 @@ void Prism::setColor(const QVector3D &color) { this->color = color; }
 void Prism::setSelected(bool selected) { this->selected = selected; }
 
 bool Prism::isSelected() { return this->selected; }
+
+void Prism::draw() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  glPushMatrix();
+  glLoadMatrixf(this->transform.toMatrix().data());
+  for (int j = 0; j < 2; j++) {
+    glBegin(GL_POLYGON);
+    glVertex3f(this->dots[6 * j].position().x(),
+               this->dots[6 * j].position().y(),
+               this->dots[6 * j].position().z());
+    glVertex3f(this->dots[6 * j + 1].position().x(),
+               this->dots[6 * j + 1].position().y(),
+               this->dots[6 * j + 1].position().z());
+    glVertex3f(this->dots[6 * j + 2].position().x(),
+               this->dots[6 * j + 2].position().y(),
+               this->dots[6 * j + 2].position().z());
+    glVertex3f(this->dots[6 * j + 3].position().x(),
+               this->dots[6 * j + 3].position().y(),
+               this->dots[6 * j + 3].position().z());
+    glVertex3f(this->dots[6 * j + 4].position().x(),
+               this->dots[6 * j + 4].position().y(),
+               this->dots[6 * j + 4].position().z());
+    glVertex3f(this->dots[6 * j + 5].position().x(),
+               this->dots[6 * j + 5].position().y(),
+               this->dots[6 * j + 5].position().z());
+    glEnd();
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f(this->dots[12 + 4 * j].position().x(),
+               this->dots[12 + 4 * j].position().y(),
+               this->dots[12 + 4 * j].position().z());
+    glVertex3f(this->dots[12 + 4 * j + 1].position().x(),
+               this->dots[12 + 4 * j + 1].position().y(),
+               this->dots[12 + 4 * j + 1].position().z());
+    glVertex3f(this->dots[12 + 4 * j + 2].position().x(),
+               this->dots[12 + 4 * j + 2].position().y(),
+               this->dots[12 + 4 * j + 2].position().z());
+    glVertex3f(this->dots[12 + 4 * j + 3].position().x(),
+               this->dots[12 + 4 * j + 3].position().y(),
+               this->dots[12 + 4 * j + 3].position().z());
+    glEnd();
+  }
+  glPopMatrix();
+}

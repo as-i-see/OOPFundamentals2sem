@@ -5,6 +5,7 @@
 #include "prism.h"
 #include "transform3d.h"
 #include "vertex.h"
+#include <QColorDialog>
 #include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QOpenGLBuffer>
@@ -24,6 +25,8 @@ public:
   std::vector<Prism> prisms;
   bool multipleFaceMode, multipleFigureMode;
   float rotationAngle = 15.0f;
+  QColorDialog *colorDialog;
+
 public slots:
   void reloadScene();
   void rotateX();
@@ -38,6 +41,8 @@ public slots:
   void moveUp();
   void moveBackward();
   void moveFrontward();
+  void pickColor();
+  void changeColor(QColor);
 
 protected:
   void initializeGL();
@@ -77,7 +82,8 @@ private:
 
   std::vector<std::vector<Vertex>> getCoords();
   std::vector<Vertex> getAxes();
-  std::vector<int> selected;
+  std::vector<int> selectedCubes;
+  std::vector<int> selectedPrisms;
 
   int retrieveObjectID(int x, int y);
 };

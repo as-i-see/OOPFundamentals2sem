@@ -20,6 +20,9 @@ Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
   format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   setFormat(format);
   m_transform.translate(0.0f, 0.0f, -5.0f);
+  this->colorDialog = new QColorDialog(this);
+  connect(this->colorDialog, SIGNAL(colorSelected(QColor)), this,
+          SLOT(changeColor(QColor)));
 }
 
 void Scene::initializeGL() {
@@ -146,54 +149,7 @@ void Scene::paintGL() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   for (int i = 0; i < this->prisms.size(); i++) {
-    if (this->prisms[i].isSelected()) {
-      glColor3f(this->selectionColor.x(), this->selectionColor.y(),
-                this->selectionColor.z());
-    } else {
-      glColor3f(this->prisms[i].getColor().x(), this->prisms[i].getColor().y(),
-                this->prisms[i].getColor().z());
-    }
-    glPushMatrix();
-    glLoadMatrixf(this->prisms[i].transform.toMatrix().data());
-    for (int j = 0; j < 2; j++) {
-      glBegin(GL_POLYGON);
-      glVertex3f(this->prisms[i].getDots()[6 * j].position().x(),
-                 this->prisms[i].getDots()[6 * j].position().y(),
-                 this->prisms[i].getDots()[6 * j].position().z());
-      glVertex3f(this->prisms[i].getDots()[6 * j + 1].position().x(),
-                 this->prisms[i].getDots()[6 * j + 1].position().y(),
-                 this->prisms[i].getDots()[6 * j + 1].position().z());
-      glVertex3f(this->prisms[i].getDots()[6 * j + 2].position().x(),
-                 this->prisms[i].getDots()[6 * j + 2].position().y(),
-                 this->prisms[i].getDots()[6 * j + 2].position().z());
-      glVertex3f(this->prisms[i].getDots()[6 * j + 3].position().x(),
-                 this->prisms[i].getDots()[6 * j + 3].position().y(),
-                 this->prisms[i].getDots()[6 * j + 3].position().z());
-      glVertex3f(this->prisms[i].getDots()[6 * j + 4].position().x(),
-                 this->prisms[i].getDots()[6 * j + 4].position().y(),
-                 this->prisms[i].getDots()[6 * j + 4].position().z());
-      glVertex3f(this->prisms[i].getDots()[6 * j + 5].position().x(),
-                 this->prisms[i].getDots()[6 * j + 5].position().y(),
-                 this->prisms[i].getDots()[6 * j + 5].position().z());
-      glEnd();
-    }
-    for (int j = 0; j < 6; j++) {
-      glBegin(GL_QUADS);
-      glVertex3f(this->prisms[i].getDots()[12 + 4 * j].position().x(),
-                 this->prisms[i].getDots()[12 + 4 * j].position().y(),
-                 this->prisms[i].getDots()[12 + 4 * j].position().z());
-      glVertex3f(this->prisms[i].getDots()[12 + 4 * j + 1].position().x(),
-                 this->prisms[i].getDots()[12 + 4 * j + 1].position().y(),
-                 this->prisms[i].getDots()[12 + 4 * j + 1].position().z());
-      glVertex3f(this->prisms[i].getDots()[12 + 4 * j + 2].position().x(),
-                 this->prisms[i].getDots()[12 + 4 * j + 2].position().y(),
-                 this->prisms[i].getDots()[12 + 4 * j + 2].position().z());
-      glVertex3f(this->prisms[i].getDots()[12 + 4 * j + 3].position().x(),
-                 this->prisms[i].getDots()[12 + 4 * j + 3].position().y(),
-                 this->prisms[i].getDots()[12 + 4 * j + 3].position().z());
-      glEnd();
-    }
-    glPopMatrix();
+    this->prisms[i].draw();
   }
 }
 
@@ -246,14 +202,28 @@ void Scene::update() {
     int properY = h - localClick.y();
     int selectedObjectID = retrieveObjectID(properX, properY);
     if (selectedObjectID) {
-      int ID = selectedObjectID - 1;
-      if (this->cubes[ID].isSelected()) {
-        this->cubes[ID].setSelected(false);
-        auto pos = std::find(this->selected.begin(), this->selected.end(), ID);
-        this->selected.erase(pos);
+      if (selectedObjectID % 2) {
+        int ID = (selectedObjectID - 1) / 2;
+        if (this->cubes[ID].isSelected()) {
+          this->cubes[ID].setSelected(false);
+          auto pos = std::find(this->selectedCubes.begin(),
+                               this->selectedCubes.end(), ID);
+          this->selectedCubes.erase(pos);
+        } else {
+          this->cubes[ID].setSelected(true);
+          this->selectedCubes.push_back(ID);
+        }
       } else {
-        this->cubes[ID].setSelected(true);
-        this->selected.push_back(ID);
+        int ID = (selectedObjectID - 2) / 2;
+        if (this->prisms[ID].isSelected()) {
+          this->prisms[ID].setSelected(false);
+          auto pos = std::find(this->selectedPrisms.begin(),
+                               this->selectedPrisms.end(), ID);
+          this->selectedPrisms.erase(pos);
+        } else {
+          this->prisms[ID].setSelected(true);
+          this->selectedPrisms.push_back(ID);
+        }
       }
     }
     Input::registerMouseRelease(Qt::LeftButton);
@@ -317,22 +287,7 @@ int Scene::retrieveObjectID(int x, int y) {
   }
   for (int i = 0; i < this->prisms.size(); i++) {
     glPushName(this->prisms[i].ID);
-    glPushMatrix();
-    glTranslatef(0.0f, 0.0f, -5.0f);
-    for (int j = 0; j < 12; j++) {
-      glBegin(GL_TRIANGLES);
-      glVertex3f(this->cubes[i].getDots()[3 * j].position().x(),
-                 this->cubes[i].getDots()[3 * j].position().y(),
-                 this->cubes[i].getDots()[3 * j].position().z());
-      glVertex3f(this->cubes[i].getDots()[3 * j + 1].position().x(),
-                 this->cubes[i].getDots()[3 * j + 1].position().y(),
-                 this->cubes[i].getDots()[3 * j + 1].position().z());
-      glVertex3f(this->cubes[i].getDots()[3 * j + 2].position().x(),
-                 this->cubes[i].getDots()[3 * j + 2].position().y(),
-                 this->cubes[i].getDots()[3 * j + 2].position().z());
-      glEnd();
-    }
-    glPopMatrix();
+    this->prisms[i].draw();
     glPopName();
   }
 
@@ -361,7 +316,8 @@ void Scene::reloadScene() {
 }
 
 void Scene::reloadSetup() {
-  this->selected.clear();
+  this->selectedCubes.clear();
+  this->selectedPrisms.clear();
   m_program->bind();
   cubeVAO.bind();
   cubesVBO.bind();
@@ -444,12 +400,12 @@ void Scene::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void Scene::rotateX() {
-  if (this->selected.empty())
+  if (this->selectedCubes.empty())
     return;
   QQuaternion xRotation =
       QQuaternion::fromAxisAndAngle(10.0f, 0.0f, 0.0f, this->rotationAngle);
-  for (int i = 0; i < this->selected.size(); i++) {
-    int ID = this->selected[i];
+  for (int i = 0; i < this->selectedCubes.size(); i++) {
+    int ID = this->selectedCubes[i];
     this->cubes[ID].transform.rotate(xRotation);
   }
 }
@@ -464,3 +420,15 @@ void Scene::moveDown() {}
 void Scene::moveUp() {}
 void Scene::moveBackward() {}
 void Scene::moveFrontward() {}
+void Scene::pickColor() {}
+
+void Scene::changeColor(QColor color) {
+  QVector3D glColor(color.red() / 255.0f, color.green() / 255.0f,
+                    color.blue() / 255.0f);
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].setColor(glColor);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].setColor(glColor);
+  }
+}
