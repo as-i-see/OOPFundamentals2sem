@@ -34,14 +34,13 @@ public slots:
   void rotateZ();
   void showXYProjection();
   void showYZProjection();
-  void showZXProjection();
-  void moveLeft();
-  void moveRight();
-  void moveDown();
-  void moveUp();
-  void moveBackward();
-  void moveFrontward();
-  void pickColor();
+  void showXZProjection();
+  void moveXPos();
+  void moveXNeg();
+  void moveYPos();
+  void moveYNeg();
+  void moveZPos();
+  void moveZNeg();
   void changeColor(QColor);
 
 protected:
@@ -86,6 +85,10 @@ private:
   std::vector<int> selectedPrisms;
 
   int retrieveObjectID(int x, int y);
+
+  bool showXY = false;
+  bool showYZ = false;
+  bool showXZ = false;
 };
 
 #endif // SCENE_H

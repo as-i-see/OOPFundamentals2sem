@@ -30,6 +30,9 @@ public:
   bool isSelected();
   Transform3D transform;
   void draw();
+  void drawXYProjection();
+  void drawXZProjection();
+  void drawYZProjection();
 
 private:
   std::vector<Vertex> dots;

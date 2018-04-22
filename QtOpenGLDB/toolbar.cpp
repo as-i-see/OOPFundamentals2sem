@@ -35,40 +35,39 @@ ToolBar::ToolBar(QWidget *parent, Scene *glWidget) : QToolBar(parent) {
   zxProjectionAction = new QAction(QIcon(":/images/plane-zx-proj.jpg"),
                                    QString("ZX-projection"), this);
   connect(zxProjectionAction, SIGNAL(triggered(bool)), glWidget,
-          SLOT(showZXProjection()));
+          SLOT(showXZProjection()));
   addAction(zxProjectionAction);
 
   addSeparator();
 
   xLeftAction =
       new QAction(QIcon(":/images/x_left.jpg"), QString("Left"), this);
-  connect(xLeftAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveLeft()));
+  connect(xLeftAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveXPos()));
   addAction(xLeftAction);
 
   xRightAction =
       new QAction(QIcon(":/images/x_right.jpg"), QString("Right"), this);
-  connect(xRightAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveRight()));
+  connect(xRightAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveXNeg()));
   addAction(xRightAction);
 
   yLeftAction =
       new QAction(QIcon(":/images/y_left.jpg"), QString("Down"), this);
-  connect(yLeftAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveDown()));
+  connect(yLeftAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveYPos()));
   addAction(yLeftAction);
 
   yRightAction =
       new QAction(QIcon(":/images/y_right.jpg"), QString("Up"), this);
-  connect(yRightAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveUp()));
+  connect(yRightAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveYNeg()));
   addAction(yRightAction);
 
   zLeftAction =
       new QAction(QIcon(":/images/z_left.jpg"), QString("Backward"), this);
-  connect(zLeftAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveBackward()));
+  connect(zLeftAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveZPos()));
   addAction(zLeftAction);
 
   zRightAction =
       new QAction(QIcon(":/images/z_right.jpg"), QString("Frontward"), this);
-  connect(zRightAction, SIGNAL(triggered(bool)), glWidget,
-          SLOT(moveFrontward()));
+  connect(zRightAction, SIGNAL(triggered(bool)), glWidget, SLOT(moveZNeg()));
   addAction(zRightAction);
 
   addSeparator();

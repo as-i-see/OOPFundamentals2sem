@@ -19,7 +19,7 @@ Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
   format.setDepthBufferSize(24);
   format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   setFormat(format);
-  m_transform.translate(0.0f, 0.0f, -5.0f);
+  // m_transform.translate(0.0f, 0.0f, -5.0f);
   this->colorDialog = new QColorDialog(this);
   connect(this->colorDialog, SIGNAL(colorSelected(QColor)), this,
           SLOT(changeColor(QColor)));
@@ -151,6 +151,21 @@ void Scene::paintGL() {
   for (int i = 0; i < this->prisms.size(); i++) {
     this->prisms[i].draw();
   }
+  if (this->showXY) {
+    for (int i = 0; i < this->prisms.size(); i++) {
+      this->prisms[i].drawXYProjection();
+    }
+  }
+  if (this->showYZ) {
+    for (int i = 0; i < this->prisms.size(); i++) {
+      this->prisms[i].drawYZProjection();
+    }
+  }
+  if (this->showXZ) {
+    for (int i = 0; i < this->prisms.size(); i++) {
+      this->prisms[i].drawXZProjection();
+    }
+  }
 }
 
 static void qNormalizeAngle(int &angle) {
@@ -268,7 +283,7 @@ int Scene::retrieveObjectID(int x, int y) {
   for (int i = 0; i < this->cubes.size(); i++) {
     glPushName(this->cubes[i].ID);
     glPushMatrix();
-    glTranslatef(0.0f, 0.0f, -5.0f);
+    glLoadMatrixf(this->cubes[i].transform.toMatrix().data());
     for (int j = 0; j < 12; j++) {
       glBegin(GL_TRIANGLES);
       glVertex3f(this->cubes[i].getDots()[3 * j].position().x(),
@@ -307,6 +322,7 @@ int Scene::retrieveObjectID(int x, int y) {
     }
     return selectedObject;
   }
+
   return 0;
 }
 
@@ -411,16 +427,73 @@ void Scene::rotateX() {
 }
 void Scene::rotateY() {}
 void Scene::rotateZ() {}
-void Scene::showXYProjection() {}
-void Scene::showYZProjection() {}
-void Scene::showZXProjection() {}
-void Scene::moveLeft() {}
-void Scene::moveRight() {}
-void Scene::moveDown() {}
-void Scene::moveUp() {}
-void Scene::moveBackward() {}
-void Scene::moveFrontward() {}
-void Scene::pickColor() {}
+void Scene::showXYProjection() {
+  if (this->showXY)
+    this->showXY = false;
+  else
+    this->showXY = true;
+}
+void Scene::showYZProjection() {
+  if (this->showYZ)
+    this->showYZ = false;
+  else
+    this->showYZ = true;
+}
+
+void Scene::showXZProjection() {
+  if (this->showXZ)
+    this->showXZ = false;
+  else
+    this->showXZ = true;
+}
+void Scene::moveXPos() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.translate(1.0f, 0.0f, 0.0f);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.translate(1.0f, 0.0f, 0.0f);
+  }
+}
+void Scene::moveXNeg() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.translate(-1.0f, 0.0f, 0.0f);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.translate(-1.0f, 0.0f, 0.0f);
+  }
+}
+void Scene::moveYPos() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.translate(0.0f, 1.0f, 0.0f);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.translate(0.0f, 1.0f, 0.0f);
+  }
+}
+void Scene::moveYNeg() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.translate(0.0f, -1.0f, 0.0f);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.translate(0.0f, -1.0f, 0.0f);
+  }
+}
+void Scene::moveZPos() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.translate(0.0f, 0.0f, 1.0f);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.translate(0.0f, 0.0f, 1.0f);
+  }
+}
+void Scene::moveZNeg() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.translate(0.0f, 0.0f, -1.0f);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.translate(0.0f, 0.0f, -1.0f);
+  }
+}
 
 void Scene::changeColor(QColor color) {
   QVector3D glColor(color.red() / 255.0f, color.green() / 255.0f,

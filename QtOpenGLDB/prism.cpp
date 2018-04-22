@@ -4,20 +4,17 @@
 Prism::Prism() {
   this->color = QVector3D(1.0f, 1.0f, 1.0f);
   this->selected = false;
-  this->transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 Prism::Prism(const Prism &other) {
   this->dots = std::vector<Vertex>(other.dots);
   this->color = QVector3D(other.color);
   this->selected = other.selected;
-  this->transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 Prism::Prism(std::vector<Vertex> dots, QVector3D color)
     : dots(dots), color(color) {
   this->selected = false;
-  this->transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 Prism::~Prism() { this->dots.clear(); }
@@ -109,6 +106,178 @@ void Prism::draw() {
     glVertex3f(this->dots[12 + 4 * j + 3].position().x(),
                this->dots[12 + 4 * j + 3].position().y(),
                this->dots[12 + 4 * j + 3].position().z());
+    glEnd();
+  }
+  glPopMatrix();
+}
+
+void Prism::drawXYProjection() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  glPushMatrix();
+  for (int j = 0; j < 2; j++) {
+    glBegin(GL_POLYGON);
+    glVertex3f((this->transform.toMatrix() * this->dots[6 * j].position()).x(),
+               (this->transform.toMatrix() * this->dots[6 * j].position()).y(),
+               0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 1].position()).x(),
+        (this->transform.toMatrix() * this->dots[6 * j + 1].position()).y(), 0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 2].position()).x(),
+        (this->transform.toMatrix() * this->dots[6 * j + 2].position()).y(), 0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 3].position()).x(),
+        (this->transform.toMatrix() * this->dots[6 * j + 3].position()).y(), 0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 4].position()).x(),
+        (this->transform.toMatrix() * this->dots[6 * j + 4].position()).y(), 0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 5].position()).x(),
+        (this->transform.toMatrix() * this->dots[6 * j + 5].position()).y(), 0);
+    glEnd();
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j].position()).x(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j].position()).y(),
+        0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 1].position())
+            .x(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 1].position())
+            .y(),
+        0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 2].position())
+            .x(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 2].position())
+            .y(),
+        0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 3].position())
+            .x(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 3].position())
+            .y(),
+        0);
+    glEnd();
+  }
+  glPopMatrix();
+}
+
+void Prism::drawXZProjection() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  glPushMatrix();
+  for (int j = 0; j < 2; j++) {
+    glBegin(GL_POLYGON);
+    glVertex3f((this->transform.toMatrix() * this->dots[6 * j].position()).x(),
+               0,
+               (this->transform.toMatrix() * this->dots[6 * j].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 1].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[6 * j + 1].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 2].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[6 * j + 2].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 3].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[6 * j + 3].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 4].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[6 * j + 4].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[6 * j + 5].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[6 * j + 5].position()).z());
+    glEnd();
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 1].position())
+            .x(),
+        0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 1].position())
+            .z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 2].position())
+            .x(),
+        0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 2].position())
+            .z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 3].position())
+            .x(),
+        0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 3].position())
+            .z());
+    glEnd();
+  }
+  glPopMatrix();
+}
+
+void Prism::drawYZProjection() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  glPushMatrix();
+  for (int j = 0; j < 2; j++) {
+    glBegin(GL_POLYGON);
+    glVertex3f(0,
+               (this->transform.toMatrix() * this->dots[6 * j].position()).y(),
+               (this->transform.toMatrix() * this->dots[6 * j].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[6 * j + 1].position()).y(),
+        (this->transform.toMatrix() * this->dots[6 * j + 1].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[6 * j + 2].position()).y(),
+        (this->transform.toMatrix() * this->dots[6 * j + 2].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[6 * j + 3].position()).y(),
+        (this->transform.toMatrix() * this->dots[6 * j + 3].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[6 * j + 4].position()).y(),
+        (this->transform.toMatrix() * this->dots[6 * j + 4].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[6 * j + 5].position()).y(),
+        (this->transform.toMatrix() * this->dots[6 * j + 5].position()).z());
+    glEnd();
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[12 + 4 * j].position()).y(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j].position()).z());
+    glVertex3f(
+        0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 1].position())
+            .y(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 1].position())
+            .z());
+    glVertex3f(
+        0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 2].position())
+            .y(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 2].position())
+            .z());
+    glVertex3f(
+        0,
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 3].position())
+            .y(),
+        (this->transform.toMatrix() * this->dots[12 + 4 * j + 3].position())
+            .z());
     glEnd();
   }
   glPopMatrix();

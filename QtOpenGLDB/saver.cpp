@@ -37,37 +37,44 @@ bool Saver::persist() {
       QString("INSERT INTO " + this->cubeTableName + " VALUES (?, ?, ?)"));
   this->savePrismVertex->prepare(
       QString("INSERT INTO " + this->prismTableName + " VALUES (?, ?, ?)"));
-  for (auto cube : this->cubes) {
-    for (auto vertex : cube.getDots()) {
-      this->saveCubeVertex->bindValue(0, vertex.position().x());
-      this->saveCubeVertex->bindValue(1, vertex.position().y());
-      this->saveCubeVertex->bindValue(2, vertex.position().z());
+  applyLiveTransformations();
+  for (int i = 0; i < this->cubes.size(); i++) {
+    for (int j = 0; j < 36; j++) {
+      this->saveCubeVertex->bindValue(
+          0, this->cubes[i].getDots()[j].position().x());
+      this->saveCubeVertex->bindValue(
+          1, this->cubes[i].getDots()[j].position().y());
+      this->saveCubeVertex->bindValue(
+          2, this->cubes[i].getDots()[j].position().z());
       if (!this->saveCubeVertex->exec()) {
         QSqlError err = this->saveCubeVertex->lastError();
         std::cout << err.databaseText().toStdString();
       }
     }
-    this->saveCubeVertex->bindValue(0, cube.getColor().x());
-    this->saveCubeVertex->bindValue(1, cube.getColor().y());
-    this->saveCubeVertex->bindValue(2, cube.getColor().z());
+    this->saveCubeVertex->bindValue(0, this->cubes[i].getColor().x());
+    this->saveCubeVertex->bindValue(1, this->cubes[i].getColor().y());
+    this->saveCubeVertex->bindValue(2, this->cubes[i].getColor().z());
     if (!this->saveCubeVertex->exec()) {
       QSqlError err = this->saveCubeVertex->lastError();
       std::cout << err.databaseText().toStdString();
     }
   }
-  for (auto prism : this->prisms) {
-    for (auto vertex : prism.getDots()) {
-      this->savePrismVertex->bindValue(0, vertex.position().x());
-      this->savePrismVertex->bindValue(1, vertex.position().y());
-      this->savePrismVertex->bindValue(2, vertex.position().z());
+  for (int i = 0; i < this->prisms.size(); i++) {
+    for (int j = 0; j < 36; j++) {
+      this->savePrismVertex->bindValue(
+          0, this->prisms[i].getDots()[j].position().x());
+      this->savePrismVertex->bindValue(
+          1, this->prisms[i].getDots()[j].position().y());
+      this->savePrismVertex->bindValue(
+          2, this->prisms[i].getDots()[j].position().z());
       if (!this->savePrismVertex->exec()) {
         QSqlError err = this->savePrismVertex->lastError();
         std::cout << err.databaseText().toStdString();
       }
     }
-    this->savePrismVertex->bindValue(0, prism.getColor().x());
-    this->savePrismVertex->bindValue(1, prism.getColor().y());
-    this->savePrismVertex->bindValue(2, prism.getColor().z());
+    this->savePrismVertex->bindValue(0, this->prisms[i].getColor().x());
+    this->savePrismVertex->bindValue(1, this->prisms[i].getColor().y());
+    this->savePrismVertex->bindValue(2, this->prisms[i].getColor().z());
     if (!this->savePrismVertex->exec()) {
       QSqlError err = this->savePrismVertex->lastError();
       std::cout << err.databaseText().toStdString();
@@ -75,10 +82,28 @@ bool Saver::persist() {
   }
   this->db.close();
   this->close();
+  ui->lineEdit->setText("");
   return ok;
 }
 
 void Saver::setData(std::pair<std::vector<Cube>, std::vector<Prism>> data) {
   this->cubes = data.first;
   this->prisms = data.second;
+}
+
+void Saver::applyLiveTransformations() {
+  for (int i = 0; i < this->cubes.size(); i++) {
+    for (int j = 0; j < 36; j++) {
+      this->cubes[i].getDots()[j].setPosition(
+          this->cubes[i].transform.toMatrix() *
+          this->cubes[i].getDots()[j].position());
+    }
+  }
+  for (int i = 0; i < this->prisms.size(); i++) {
+    for (int j = 0; j < 36; j++) {
+      this->prisms[i].getDots()[j].setPosition(
+          this->prisms[i].transform.toMatrix() *
+          this->prisms[i].getDots()[j].position());
+    }
+  }
 }

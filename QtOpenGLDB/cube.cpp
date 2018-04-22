@@ -4,20 +4,17 @@
 Cube::Cube() {
   this->color = QVector3D(1.0f, 1.0f, 1.0f);
   this->selected = false;
-  this->transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 Cube::Cube(const Cube &anotherCube) {
   this->dots = std::vector<Vertex>(anotherCube.dots);
   this->color = QVector3D(anotherCube.color);
   this->selected = anotherCube.selected;
-  this->transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 Cube::Cube(std::vector<Vertex> dots, QVector3D color)
     : dots(dots), color(color) {
   this->selected = false;
-  this->transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 Cube::~Cube() { this->dots.clear(); }

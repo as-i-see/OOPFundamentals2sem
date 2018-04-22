@@ -24,6 +24,9 @@ public slots:
 private slots:
   bool persist();
 
+signals:
+  void dataUpdate();
+
 private:
   Ui::Saver *ui;
   QSqlDatabase db;
@@ -31,6 +34,7 @@ private:
   QString cubeTableName, prismTableName;
   std::vector<Cube> cubes;
   std::vector<Prism> prisms;
+  void applyLiveTransformations();
 };
 
 #endif // SAVER_H
