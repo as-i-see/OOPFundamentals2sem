@@ -23,10 +23,11 @@ public:
   ~MainWindow();
 signals:
   void sceneChanged();
-  void resendData(std::pair<std::vector<Cube>, int>);
+  void resendData(std::pair<std::vector<Cube>, std::vector<Prism>>);
 public slots:
-  void loadNewScene(std::pair<std::vector<Cube>,
-                              int>); // TODO: second argument would be prisms
+  void loadNewScene(
+      std::pair<std::vector<Cube>,
+                std::vector<Prism>>); // TODO: second argument would be prisms
 
 private:
   Ui::MainWindow *ui;

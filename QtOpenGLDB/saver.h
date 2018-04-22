@@ -2,6 +2,7 @@
 #define SAVER_H
 
 #include "cube.h"
+#include "prism.h"
 #include "vertex.h"
 #include <QMainWindow>
 #include <QSqlQuery>
@@ -19,7 +20,7 @@ public:
   explicit Saver(QMainWindow *parent = 0);
   ~Saver();
 public slots:
-  void setData(std::pair<std::vector<Cube>, int>);
+  void setData(std::pair<std::vector<Cube>, std::vector<Prism>>);
 private slots:
   bool persist();
 
@@ -29,6 +30,7 @@ private:
   QSqlQuery *saveCubeVertex, *savePrismVertex;
   QString cubeTableName, prismTableName;
   std::vector<Cube> cubes;
+  std::vector<Prism> prisms;
 };
 
 #endif // SAVER_H

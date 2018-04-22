@@ -8,6 +8,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
 #include <QPoint>
+#include <QQuaternion>
 #include <QScreen>
 #include <QString>
 #include <QSurfaceFormat>
@@ -131,11 +132,69 @@ void Scene::paintGL() {
       m_program->setUniformValue(u_figureColor, this->selectionColor);
     else
       m_program->setUniformValue(u_figureColor, this->cubes[i].getColor());
+    m_program->setUniformValue(u_modelToWorld,
+                               this->cubes[i].transform.toMatrix());
     glDrawArrays(GL_TRIANGLES, 36 * i, 36);
   }
   cubeVAO.release();
 
   m_program->release();
+
+  QMatrix4x4 projectionMatrix = this->m_projection * m_camera.toMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glLoadMatrixf(projectionMatrix.data());
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  for (int i = 0; i < this->prisms.size(); i++) {
+    if (this->prisms[i].isSelected()) {
+      glColor3f(this->selectionColor.x(), this->selectionColor.y(),
+                this->selectionColor.z());
+    } else {
+      glColor3f(this->prisms[i].getColor().x(), this->prisms[i].getColor().y(),
+                this->prisms[i].getColor().z());
+    }
+    glPushMatrix();
+    glLoadMatrixf(this->prisms[i].transform.toMatrix().data());
+    for (int j = 0; j < 2; j++) {
+      glBegin(GL_POLYGON);
+      glVertex3f(this->prisms[i].getDots()[6 * j].position().x(),
+                 this->prisms[i].getDots()[6 * j].position().y(),
+                 this->prisms[i].getDots()[6 * j].position().z());
+      glVertex3f(this->prisms[i].getDots()[6 * j + 1].position().x(),
+                 this->prisms[i].getDots()[6 * j + 1].position().y(),
+                 this->prisms[i].getDots()[6 * j + 1].position().z());
+      glVertex3f(this->prisms[i].getDots()[6 * j + 2].position().x(),
+                 this->prisms[i].getDots()[6 * j + 2].position().y(),
+                 this->prisms[i].getDots()[6 * j + 2].position().z());
+      glVertex3f(this->prisms[i].getDots()[6 * j + 3].position().x(),
+                 this->prisms[i].getDots()[6 * j + 3].position().y(),
+                 this->prisms[i].getDots()[6 * j + 3].position().z());
+      glVertex3f(this->prisms[i].getDots()[6 * j + 4].position().x(),
+                 this->prisms[i].getDots()[6 * j + 4].position().y(),
+                 this->prisms[i].getDots()[6 * j + 4].position().z());
+      glVertex3f(this->prisms[i].getDots()[6 * j + 5].position().x(),
+                 this->prisms[i].getDots()[6 * j + 5].position().y(),
+                 this->prisms[i].getDots()[6 * j + 5].position().z());
+      glEnd();
+    }
+    for (int j = 0; j < 6; j++) {
+      glBegin(GL_QUADS);
+      glVertex3f(this->prisms[i].getDots()[12 + 4 * j].position().x(),
+                 this->prisms[i].getDots()[12 + 4 * j].position().y(),
+                 this->prisms[i].getDots()[12 + 4 * j].position().z());
+      glVertex3f(this->prisms[i].getDots()[12 + 4 * j + 1].position().x(),
+                 this->prisms[i].getDots()[12 + 4 * j + 1].position().y(),
+                 this->prisms[i].getDots()[12 + 4 * j + 1].position().z());
+      glVertex3f(this->prisms[i].getDots()[12 + 4 * j + 2].position().x(),
+                 this->prisms[i].getDots()[12 + 4 * j + 2].position().y(),
+                 this->prisms[i].getDots()[12 + 4 * j + 2].position().z());
+      glVertex3f(this->prisms[i].getDots()[12 + 4 * j + 3].position().x(),
+                 this->prisms[i].getDots()[12 + 4 * j + 3].position().y(),
+                 this->prisms[i].getDots()[12 + 4 * j + 3].position().z());
+      glEnd();
+    }
+    glPopMatrix();
+  }
 }
 
 static void qNormalizeAngle(int &angle) {
@@ -208,9 +267,9 @@ int Scene::retrieveObjectID(int x, int y) {
   int objectsFound = 0;
   int viewportCoords[4] = {0};
 
-  unsigned int selectBuffer[32] = {0};
+  unsigned int selectBuffer[100] = {0};
 
-  glSelectBuffer(32, selectBuffer);
+  glSelectBuffer(100, selectBuffer);
 
   glViewport(0, 0, w, h);
   glGetIntegerv(GL_VIEWPORT, viewportCoords);
@@ -223,24 +282,41 @@ int Scene::retrieveObjectID(int x, int y) {
 
   gluPickMatrix(x, y, 1, 1, viewportCoords);
   gluPerspective(45.0, (float)w / (float)h, 0.01, 200.0);
+  QVector3D pos = m_camera.translation();
+  QVector3D view = m_camera.forward();
+  QVector3D up = m_camera.up();
 
+  gluLookAt(pos.x(), pos.y(), pos.z(), pos.x() + view.x(), pos.y() + view.y(),
+            pos.z() + view.z(), up.x(), up.y(), up.z());
   glMatrixMode(GL_MODELVIEW);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glLoadIdentity();
 
-  QVector3D pos = m_camera.translation();
-  QVector3D view = m_camera.forward();
-  QVector3D up = m_camera.up();
-  gluLookAt(pos.x(), pos.y(), pos.z(), pos.x() + view.x(), pos.y() + view.y(),
-            pos.z() + view.z(), up.x(), up.y(), up.z());
   glInitNames();
   for (int i = 0; i < this->cubes.size(); i++) {
-    glColor3f(this->cubes[i].getColor().x(), this->cubes[i].getColor().y(),
-              this->cubes[i].getColor().z());
-
     glPushName(this->cubes[i].ID);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, -5.0f);
+    for (int j = 0; j < 12; j++) {
+      glBegin(GL_TRIANGLES);
+      glVertex3f(this->cubes[i].getDots()[3 * j].position().x(),
+                 this->cubes[i].getDots()[3 * j].position().y(),
+                 this->cubes[i].getDots()[3 * j].position().z());
+      glVertex3f(this->cubes[i].getDots()[3 * j + 1].position().x(),
+                 this->cubes[i].getDots()[3 * j + 1].position().y(),
+                 this->cubes[i].getDots()[3 * j + 1].position().z());
+      glVertex3f(this->cubes[i].getDots()[3 * j + 2].position().x(),
+                 this->cubes[i].getDots()[3 * j + 2].position().y(),
+                 this->cubes[i].getDots()[3 * j + 2].position().z());
+      glEnd();
+    }
+    glPopMatrix();
+    glPopName();
+  }
+  for (int i = 0; i < this->prisms.size(); i++) {
+    glPushName(this->prisms[i].ID);
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, -5.0f);
     for (int j = 0; j < 12; j++) {
@@ -291,7 +367,7 @@ void Scene::reloadSetup() {
   cubesVBO.bind();
   cubesVBO.allocate(864 * this->cubes.size());
   for (int i = 0; i < this->cubes.size(); i++) {
-    this->cubes[i].ID = i + 1;
+    this->cubes[i].ID = 2 * i + 1;
     this->cubes[i].setSelected(false);
     auto ptr = cubesVBO.mapRange(864 * i, 864,
                                  QOpenGLBuffer::RangeInvalidate |
@@ -302,6 +378,10 @@ void Scene::reloadSetup() {
   cubesVBO.release();
   cubeVAO.release();
   m_program->release();
+  for (int i = 0; i < this->prisms.size(); i++) {
+    this->prisms[i].ID = 2 * i + 2;
+    this->prisms[i].setSelected(false);
+  }
 }
 
 std::vector<std::vector<Vertex>> Scene::getCoords() {
@@ -363,7 +443,16 @@ void Scene::mouseReleaseEvent(QMouseEvent *event) {
   Input::registerMouseRelease(event->button());
 }
 
-void Scene::rotateX() {}
+void Scene::rotateX() {
+  if (this->selected.empty())
+    return;
+  QQuaternion xRotation =
+      QQuaternion::fromAxisAndAngle(10.0f, 0.0f, 0.0f, this->rotationAngle);
+  for (int i = 0; i < this->selected.size(); i++) {
+    int ID = this->selected[i];
+    this->cubes[ID].transform.rotate(xRotation);
+  }
+}
 void Scene::rotateY() {}
 void Scene::rotateZ() {}
 void Scene::showXYProjection() {}

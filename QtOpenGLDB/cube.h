@@ -1,6 +1,7 @@
 #ifndef CUBE_H
 #define CUBE_H
 
+#include "transform3d.h"
 #include "vertex.h"
 #include <QObject>
 #include <QVector3D>
@@ -28,6 +29,7 @@ public:
   unsigned int ID;
   void setSelected(bool);
   bool isSelected();
+  Transform3D transform;
 
 private:
   std::vector<Vertex> dots;

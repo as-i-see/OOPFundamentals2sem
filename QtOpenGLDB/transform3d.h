@@ -6,7 +6,7 @@
 #include <QVector3D>
 
 class Transform3D {
- public:
+public:
   // Constructors
   Transform3D();
 
@@ -39,7 +39,7 @@ class Transform3D {
   const QQuaternion &rotation() const;
   const QMatrix4x4 &toMatrix();
 
- private:
+private:
   bool m_dirty;
   QVector3D m_translation;
   QVector3D m_scale;
@@ -113,4 +113,4 @@ QDataStream &operator<<(QDataStream &out, const Transform3D &transform);
 QDataStream &operator>>(QDataStream &in, Transform3D &transform);
 #endif
 
-#endif  // TRANSFORM3D_H
+#endif // TRANSFORM3D_H

@@ -35,7 +35,9 @@ SOURCES += \
     toolbar.cpp \
     cube.cpp \
     saver.cpp \
-    loader.cpp
+    loader.cpp \
+    prism.cpp \
+    prismcreation.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -49,14 +51,17 @@ HEADERS += \
     toolbar.h \
     cube.h \
     saver.h \
-    loader.h
+    loader.h \
+    prism.h \
+    prismcreation.h
 
 FORMS += \
     mainwindow.ui \
     newactionform.ui \
     cubecreation.ui \
     saver.ui \
-    loader.ui
+    loader.ui \
+    prismcreation.ui
 
 DISTFILES += \
     shaders/simple.frag \

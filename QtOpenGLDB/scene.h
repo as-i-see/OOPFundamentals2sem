@@ -2,6 +2,7 @@
 #define SCENE_H
 #include "camera3d.h"
 #include "cube.h"
+#include "prism.h"
 #include "transform3d.h"
 #include "vertex.h"
 #include <QMatrix4x4>
@@ -20,7 +21,9 @@ class Scene : public QOpenGLWidget //, protected QOpenGLFunctions
 public:
   Scene(QWidget *parent);
   std::vector<Cube> cubes;
+  std::vector<Prism> prisms;
   bool multipleFaceMode, multipleFigureMode;
+  float rotationAngle = 15.0f;
 public slots:
   void reloadScene();
   void rotateX();

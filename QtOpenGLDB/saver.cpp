@@ -63,6 +63,7 @@ bool Saver::persist() {
   return ok;
 }
 
-void Saver::setData(std::pair<std::vector<Cube>, int> data) {
+void Saver::setData(std::pair<std::vector<Cube>, std::vector<Prism>> data) {
   this->cubes = data.first;
+  this->prisms = data.second;
 }

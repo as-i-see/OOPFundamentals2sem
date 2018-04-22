@@ -19,5 +19,6 @@
         <file>images/z_left.jpg</file>
         <file>images/z_right.jpg</file>
         <file>images/z-rotation.jpg</file>
+        <file>images/prism.jpg</file>
     </qresource>
 </RCC>

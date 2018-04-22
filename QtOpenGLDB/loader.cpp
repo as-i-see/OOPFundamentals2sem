@@ -27,6 +27,7 @@ void Loader::load() {
       QString("SELECT x, y, z FROM " + this->cubeTableName + ";"));
 
   std::vector<Cube> cubes;
+  std::vector<Prism> prisms;
 
   int nCubeVertices = 0;
   Cube aCube;
@@ -44,7 +45,7 @@ void Loader::load() {
     }
     aCube.getDots()[nCubeVertices++] = Vertex(vertexVector);
   }
-  emit sendData({cubes, 666});
+  emit sendData({cubes, prisms});
   this->db.close();
   this->close();
 }
