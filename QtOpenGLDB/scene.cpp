@@ -19,7 +19,6 @@ Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
   format.setDepthBufferSize(24);
   format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   setFormat(format);
-  // m_transform.translate(0.0f, 0.0f, -5.0f);
   this->colorDialog = new QColorDialog(this);
   connect(this->colorDialog, SIGNAL(colorSelected(QColor)), this,
           SLOT(changeColor(QColor)));
@@ -31,7 +30,6 @@ void Scene::initializeGL() {
   glEnable(GL_DEPTH_TEST);
   glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
-  // glEnable(GL_CULL_FACE);
 
   glLineWidth(0.1f);
 
@@ -43,27 +41,10 @@ void Scene::initializeGL() {
   m_program->link();
   m_program->bind();
 
-  /////////////////////////////////
-
-  cubeVAO.create();
-  cubeVAO.bind();
-
   u_modelToWorld = m_program->uniformLocation("modelToWorld");
   u_worldToCamera = m_program->uniformLocation("worldToCamera");
   u_cameraToView = m_program->uniformLocation("cameraToView");
   u_figureColor = m_program->uniformLocation("figureColor");
-
-  cubesVBO.create();
-  cubesVBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-  cubesVBO.bind();
-
-  m_program->enableAttributeArray(0);
-  m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 24);
-
-  cubesVBO.release();
-  cubeVAO.release();
-
-  //////////////////////////////////
 
   coordsVAO.create();
   coordsVAO.bind();
@@ -127,20 +108,6 @@ void Scene::paintGL() {
   m_program->setUniformValue(u_figureColor, this->whiteColor);
   glDrawArrays(GL_LINES, 624, 630);
   coordsVAO.release();
-
-  cubeVAO.bind();
-  m_program->setUniformValue(u_cameraToView, m_projection);
-  for (int i = 0; i < this->cubes.size(); i++) {
-    if (this->cubes[i].isSelected())
-      m_program->setUniformValue(u_figureColor, this->selectionColor);
-    else
-      m_program->setUniformValue(u_figureColor, this->cubes[i].getColor());
-    m_program->setUniformValue(u_modelToWorld,
-                               this->cubes[i].transform.toMatrix());
-    glDrawArrays(GL_TRIANGLES, 36 * i, 36);
-  }
-  cubeVAO.release();
-
   m_program->release();
 
   QMatrix4x4 projectionMatrix = this->m_projection * m_camera.toMatrix();
@@ -166,13 +133,9 @@ void Scene::paintGL() {
       this->prisms[i].drawXZProjection();
     }
   }
-}
-
-static void qNormalizeAngle(int &angle) {
-  while (angle < 0)
-    angle += 360 * 16;
-  while (angle > 360)
-    angle -= 360 * 16;
+  for (int i = 0; i < this->cubes.size(); i++) {
+    this->cubes[i].draw();
+  }
 }
 
 void Scene::update() {
@@ -282,22 +245,7 @@ int Scene::retrieveObjectID(int x, int y) {
   glInitNames();
   for (int i = 0; i < this->cubes.size(); i++) {
     glPushName(this->cubes[i].ID);
-    glPushMatrix();
-    glLoadMatrixf(this->cubes[i].transform.toMatrix().data());
-    for (int j = 0; j < 12; j++) {
-      glBegin(GL_TRIANGLES);
-      glVertex3f(this->cubes[i].getDots()[3 * j].position().x(),
-                 this->cubes[i].getDots()[3 * j].position().y(),
-                 this->cubes[i].getDots()[3 * j].position().z());
-      glVertex3f(this->cubes[i].getDots()[3 * j + 1].position().x(),
-                 this->cubes[i].getDots()[3 * j + 1].position().y(),
-                 this->cubes[i].getDots()[3 * j + 1].position().z());
-      glVertex3f(this->cubes[i].getDots()[3 * j + 2].position().x(),
-                 this->cubes[i].getDots()[3 * j + 2].position().y(),
-                 this->cubes[i].getDots()[3 * j + 2].position().z());
-      glEnd();
-    }
-    glPopMatrix();
+    this->cubes[i].draw();
     glPopName();
   }
   for (int i = 0; i < this->prisms.size(); i++) {
@@ -482,22 +430,10 @@ void Scene::loadScene(
   this->prisms = figures.second;
   this->selectedCubes.clear();
   this->selectedPrisms.clear();
-  m_program->bind();
-  cubeVAO.bind();
-  cubesVBO.bind();
-  cubesVBO.allocate(864 * this->cubes.size());
   for (int i = 0; i < this->cubes.size(); i++) {
     this->cubes[i].ID = 2 * i + 1;
     this->cubes[i].setSelected(false);
-    auto ptr = cubesVBO.mapRange(864 * i, 864,
-                                 QOpenGLBuffer::RangeInvalidate |
-                                     QOpenGLBuffer::RangeWrite);
-    memcpy(ptr, this->cubes[i].getDots().data(), 864);
-    cubesVBO.unmap();
   }
-  cubesVBO.release();
-  cubeVAO.release();
-  m_program->release();
   for (int i = 0; i < this->prisms.size(); i++) {
     this->prisms[i].ID = 2 * i + 2;
     this->prisms[i].setSelected(false);

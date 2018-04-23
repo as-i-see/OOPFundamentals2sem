@@ -44,7 +44,7 @@ bool Saver::persist() {
   this->prisms = config.second;
   applyLiveTransformations();
   for (int i = 0; i < this->cubes.size(); i++) {
-    for (int j = 0; j < 36; j++) {
+    for (int j = 0; j < 24; j++) {
       this->saveCubeVertex->bindValue(
           0, this->cubes[i].getDots()[j].position().x());
       this->saveCubeVertex->bindValue(
@@ -93,7 +93,7 @@ bool Saver::persist() {
 
 void Saver::applyLiveTransformations() {
   for (int i = 0; i < this->cubes.size(); i++) {
-    for (int j = 0; j < 36; j++) {
+    for (int j = 0; j < 24; j++) {
       this->cubes[i].getDots()[j].setPosition(
           this->cubes[i].transform.toMatrix() *
           this->cubes[i].getDots()[j].position());

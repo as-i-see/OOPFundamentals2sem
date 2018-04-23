@@ -13,6 +13,7 @@ public:
   Cube();
   Cube(std::vector<Vertex>, QVector3D);
   Cube(const Cube &);
+  ~Cube();
   Cube &operator=(const Cube &other) {
     if (&other == this)
       return *this;
@@ -30,6 +31,10 @@ public:
   void setSelected(bool);
   bool isSelected();
   Transform3D transform;
+  void draw();
+  void drawXYProjection();
+  void drawXZProjection();
+  void drawYZProjection();
 
 private:
   std::vector<Vertex> dots;

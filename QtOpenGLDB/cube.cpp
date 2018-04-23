@@ -1,6 +1,8 @@
 #include "cube.h"
 #include <QDebug>
+#include <QOpenGLFunctions>
 #include <cmath>
+
 Cube::Cube() {
   this->color = QVector3D(1.0f, 1.0f, 1.0f);
   this->selected = false;
@@ -17,6 +19,8 @@ Cube::Cube(std::vector<Vertex> dots, QVector3D color)
     : dots(dots), color(color) {
   this->selected = false;
 }
+
+Cube::~Cube() { this->dots.clear(); }
 
 std::vector<Vertex> &Cube::getDots() { return this->dots; }
 
@@ -57,20 +61,47 @@ void Cube::reconstructCube() {
   Vertex VERTEX_BBR(VERTEX_FBR.position() + frontwardVector);
   std::vector<Vertex> vertices = {
       // Face 1 (Front)
-      VERTEX_FTR, VERTEX_FTL, VERTEX_FBL, VERTEX_FBL, VERTEX_FBR, VERTEX_FTR,
+      VERTEX_FTR, VERTEX_FTL, VERTEX_FBL, VERTEX_FBR,
       // Face 2 (Back)
-      VERTEX_BBR, VERTEX_BTL, VERTEX_BTR, VERTEX_BTL, VERTEX_BBR, VERTEX_BBL,
+      VERTEX_BBR, VERTEX_BBL, VERTEX_BTL, VERTEX_BTR,
       // Face 3 (Top)
-      VERTEX_FTR, VERTEX_BTR, VERTEX_BTL, VERTEX_BTL, VERTEX_FTL, VERTEX_FTR,
+      VERTEX_FTR, VERTEX_FTL, VERTEX_BTL, VERTEX_BTR,
       // Face 4 (Bottom)
-      VERTEX_FBR, VERTEX_FBL, VERTEX_BBL, VERTEX_BBL, VERTEX_BBR, VERTEX_FBR,
+      VERTEX_FBR, VERTEX_FBL, VERTEX_BBL, VERTEX_BBR,
       // Face 5 (Left)
-      VERTEX_FBL, VERTEX_FTL, VERTEX_BTL, VERTEX_FBL, VERTEX_BTL, VERTEX_BBL,
+      VERTEX_FBL, VERTEX_FTL, VERTEX_BTL, VERTEX_BBL,
       // Face 6 (Right)
-      VERTEX_FTR, VERTEX_FBR, VERTEX_BBR, VERTEX_BBR, VERTEX_BTR, VERTEX_FTR};
+      VERTEX_FTR, VERTEX_FBR, VERTEX_BBR, VERTEX_BTR};
   this->dots = std::move(vertices);
 }
 
 void Cube::setSelected(bool selected) { this->selected = selected; }
 
 bool Cube::isSelected() { return this->selected; }
+
+void Cube::draw() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  glPushMatrix();
+  glLoadMatrixf(this->transform.toMatrix().data());
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f(this->dots[4 * j].position().x(),
+               this->dots[4 * j].position().y(),
+               this->dots[4 * j].position().z());
+    glVertex3f(this->dots[4 * j + 1].position().x(),
+               this->dots[4 * j + 1].position().y(),
+               this->dots[4 * j + 1].position().z());
+    glVertex3f(this->dots[4 * j + 2].position().x(),
+               this->dots[4 * j + 2].position().y(),
+               this->dots[4 * j + 2].position().z());
+    glVertex3f(this->dots[4 * j + 3].position().x(),
+               this->dots[4 * j + 3].position().y(),
+               this->dots[4 * j + 3].position().z());
+    glEnd();
+  }
+  glPopMatrix();
+}

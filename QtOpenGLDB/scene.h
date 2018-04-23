@@ -26,8 +26,6 @@ public:
   bool multipleFaceMode, multipleFigureMode;
   float rotationAngle = 15.0f;
   QColorDialog *colorDialog;
-signals:
-  // void sendSceneConfig(std::pair<std::vector<Cube>, std::vector<Prism>>);
 public slots:
   void rotateX();
   void rotateY();
@@ -60,8 +58,8 @@ private:
   QPoint lastPos;
   int w, h;
   QOpenGLShaderProgram *m_program;
-  QOpenGLVertexArrayObject cubeVAO, coordsVAO;
-  QOpenGLBuffer cubesVBO, coordsVBO;
+  QOpenGLVertexArrayObject coordsVAO;
+  QOpenGLBuffer coordsVBO;
 
   // Shader Information
   int u_modelToWorld;

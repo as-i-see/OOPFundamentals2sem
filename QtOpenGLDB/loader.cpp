@@ -31,13 +31,13 @@ void Loader::load() {
 
   int nCubeVertices = 0;
   Cube aCube;
-  aCube.getDots().resize(36);
+  aCube.getDots().resize(24);
 
   while (loadCubesQuery.next()) {
     QVector3D vertexVector(loadCubesQuery.value(0).toFloat(),
                            loadCubesQuery.value(1).toFloat(),
                            loadCubesQuery.value(2).toFloat());
-    if (nCubeVertices == 36) {
+    if (nCubeVertices == 24) {
       aCube.setColor(vertexVector);
       cubes.push_back(aCube);
       nCubeVertices = 0;
