@@ -26,9 +26,9 @@ public:
   bool multipleFaceMode, multipleFigureMode;
   float rotationAngle = 15.0f;
   QColorDialog *colorDialog;
-
+signals:
+  // void sendSceneConfig(std::pair<std::vector<Cube>, std::vector<Prism>>);
 public slots:
-  void reloadScene();
   void rotateX();
   void rotateY();
   void rotateZ();
@@ -42,6 +42,8 @@ public slots:
   void moveZPos();
   void moveZNeg();
   void changeColor(QColor);
+  void loadScene(std::pair<std::vector<Cube>, std::vector<Prism>>);
+  void sceneConfigRequest(std::pair<std::vector<Cube>, std::vector<Prism>> &);
 
 protected:
   void initializeGL();
@@ -76,8 +78,6 @@ private:
   QVector3D whiteColor = QVector3D(1.0f, 1.0f, 1.0f);
   QVector3D selectionColor =
       QVector3D(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
-
-  void reloadSetup();
 
   std::vector<std::vector<Vertex>> getCoords();
   std::vector<Vertex> getAxes();

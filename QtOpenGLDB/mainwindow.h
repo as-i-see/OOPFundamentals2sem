@@ -21,13 +21,6 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget *parent = 0);
   ~MainWindow();
-signals:
-  void sceneChanged();
-  void resendData(std::pair<std::vector<Cube>, std::vector<Prism>>);
-public slots:
-  void loadNewScene(
-      std::pair<std::vector<Cube>,
-                std::vector<Prism>>); // TODO: second argument would be prisms
 
 private:
   Ui::MainWindow *ui;

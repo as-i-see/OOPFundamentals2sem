@@ -18,11 +18,6 @@ NewActionForm::NewActionForm(QMainWindow *parent)
           SLOT(newPrismReady(Prism)));
   connect(ui->pushButton_3, SIGNAL(clicked(bool)), this,
           SLOT(creationCompleted()));
-  connect(this,
-          SIGNAL(creationCompleted(
-              std::pair<std::vector<Cube>, std::vector<Prism>>)),
-          this->parent,
-          SLOT(loadNewScene(std::pair<std::vector<Cube>, std::vector<Prism>>)));
 }
 
 NewActionForm::~NewActionForm() { delete ui; }

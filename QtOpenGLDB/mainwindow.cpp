@@ -13,33 +13,32 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(ui->actionNew, &QAction::triggered, this->newActionForm,
           &NewActionForm::show);
   connect(ui->actionSave_as, &QAction::triggered, this->saver, &Saver::show);
-  connect(this,
-          SIGNAL(resendData(std::pair<std::vector<Cube>, std::vector<Prism>>)),
-          this->saver,
-          SLOT(setData(std::pair<std::vector<Cube>, std::vector<Prism>>)));
 
   this->loader = new Loader();
+  this->scene = ui->openGLWidget;
   connect(ui->actionOpen, &QAction::triggered, this->loader, &Loader::show);
+
+  connect(this->newActionForm,
+          SIGNAL(creationCompleted(
+              std::pair<std::vector<Cube>, std::vector<Prism>>)),
+          this->scene,
+          SLOT(loadScene(std::pair<std::vector<Cube>, std::vector<Prism>>)));
   connect(this->loader,
           SIGNAL(sendData(std::pair<std::vector<Cube>, std::vector<Prism>>)),
-          this,
-          SLOT(loadNewScene(std::pair<std::vector<Cube>, std::vector<Prism>>)));
-
+          this->scene,
+          SLOT(loadScene(std::pair<std::vector<Cube>, std::vector<Prism>>)));
+  connect(
+      this->saver,
+      SIGNAL(dataUpdate(std::pair<std::vector<Cube>, std::vector<Prism>> &)),
+      this->scene,
+      SLOT(sceneConfigRequest(
+          std::pair<std::vector<Cube>, std::vector<Prism>> &)));
   setCentralWidget(ui->openGLWidget);
-  this->scene = ui->openGLWidget;
+
   this->scene->setFocus();
-  connect(this, SIGNAL(sceneChanged()), this->scene, SLOT(reloadScene()));
 
   this->toolBar = new ToolBar(this, this->scene);
   addToolBar(toolBar);
 }
 
 MainWindow::~MainWindow() {}
-
-void MainWindow::loadNewScene(
-    std::pair<std::vector<Cube>, std::vector<Prism>> figures) {
-  this->scene->cubes = figures.first;
-  this->scene->prisms = figures.second;
-  emit sceneChanged();
-  emit resendData(figures);
-}

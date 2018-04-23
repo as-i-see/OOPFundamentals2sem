@@ -326,36 +326,6 @@ int Scene::retrieveObjectID(int x, int y) {
   return 0;
 }
 
-void Scene::reloadScene() {
-  this->reloadSetup();
-  this->update();
-}
-
-void Scene::reloadSetup() {
-  this->selectedCubes.clear();
-  this->selectedPrisms.clear();
-  m_program->bind();
-  cubeVAO.bind();
-  cubesVBO.bind();
-  cubesVBO.allocate(864 * this->cubes.size());
-  for (int i = 0; i < this->cubes.size(); i++) {
-    this->cubes[i].ID = 2 * i + 1;
-    this->cubes[i].setSelected(false);
-    auto ptr = cubesVBO.mapRange(864 * i, 864,
-                                 QOpenGLBuffer::RangeInvalidate |
-                                     QOpenGLBuffer::RangeWrite);
-    memcpy(ptr, this->cubes[i].getDots().data(), 864);
-    cubesVBO.unmap();
-  }
-  cubesVBO.release();
-  cubeVAO.release();
-  m_program->release();
-  for (int i = 0; i < this->prisms.size(); i++) {
-    this->prisms[i].ID = 2 * i + 2;
-    this->prisms[i].setSelected(false);
-  }
-}
-
 std::vector<std::vector<Vertex>> Scene::getCoords() {
   std::vector<std::vector<Vertex>> coords(3);
   for (int j = -51; j < 52; j += 2) {
@@ -504,4 +474,39 @@ void Scene::changeColor(QColor color) {
   for (auto ID : this->selectedPrisms) {
     this->prisms[ID].setColor(glColor);
   }
+}
+
+void Scene::loadScene(
+    std::pair<std::vector<Cube>, std::vector<Prism>> figures) {
+  this->cubes = figures.first;
+  this->prisms = figures.second;
+  this->selectedCubes.clear();
+  this->selectedPrisms.clear();
+  m_program->bind();
+  cubeVAO.bind();
+  cubesVBO.bind();
+  cubesVBO.allocate(864 * this->cubes.size());
+  for (int i = 0; i < this->cubes.size(); i++) {
+    this->cubes[i].ID = 2 * i + 1;
+    this->cubes[i].setSelected(false);
+    auto ptr = cubesVBO.mapRange(864 * i, 864,
+                                 QOpenGLBuffer::RangeInvalidate |
+                                     QOpenGLBuffer::RangeWrite);
+    memcpy(ptr, this->cubes[i].getDots().data(), 864);
+    cubesVBO.unmap();
+  }
+  cubesVBO.release();
+  cubeVAO.release();
+  m_program->release();
+  for (int i = 0; i < this->prisms.size(); i++) {
+    this->prisms[i].ID = 2 * i + 2;
+    this->prisms[i].setSelected(false);
+  }
+  QOpenGLWidget::update();
+}
+
+void Scene::sceneConfigRequest(
+    std::pair<std::vector<Cube>, std::vector<Prism>> &config) {
+  config.first = this->cubes;
+  config.second = this->prisms;
 }

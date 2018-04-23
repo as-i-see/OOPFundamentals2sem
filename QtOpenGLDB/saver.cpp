@@ -37,6 +37,11 @@ bool Saver::persist() {
       QString("INSERT INTO " + this->cubeTableName + " VALUES (?, ?, ?)"));
   this->savePrismVertex->prepare(
       QString("INSERT INTO " + this->prismTableName + " VALUES (?, ?, ?)"));
+  std::pair<std::vector<Cube>, std::vector<Prism>> config(
+      std::move(std::vector<Cube>()), std::move(std::vector<Prism>()));
+  emit dataUpdate(config);
+  this->cubes = config.first;
+  this->prisms = config.second;
   applyLiveTransformations();
   for (int i = 0; i < this->cubes.size(); i++) {
     for (int j = 0; j < 36; j++) {
@@ -84,11 +89,6 @@ bool Saver::persist() {
   this->close();
   ui->lineEdit->setText("");
   return ok;
-}
-
-void Saver::setData(std::pair<std::vector<Cube>, std::vector<Prism>> data) {
-  this->cubes = data.first;
-  this->prisms = data.second;
 }
 
 void Saver::applyLiveTransformations() {

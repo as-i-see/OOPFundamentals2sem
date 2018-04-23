@@ -19,13 +19,11 @@ class Saver : public QMainWindow {
 public:
   explicit Saver(QMainWindow *parent = 0);
   ~Saver();
-public slots:
-  void setData(std::pair<std::vector<Cube>, std::vector<Prism>>);
 private slots:
   bool persist();
 
 signals:
-  void dataUpdate();
+  void dataUpdate(std::pair<std::vector<Cube>, std::vector<Prism>> &);
 
 private:
   Ui::Saver *ui;

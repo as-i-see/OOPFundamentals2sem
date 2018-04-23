@@ -1,6 +1,6 @@
 #include "cube.h"
+#include <QDebug>
 #include <cmath>
-
 Cube::Cube() {
   this->color = QVector3D(1.0f, 1.0f, 1.0f);
   this->selected = false;
