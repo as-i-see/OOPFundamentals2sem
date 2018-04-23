@@ -15,10 +15,10 @@
 #include <algorithm>
 
 Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
-  QSurfaceFormat format;
-  format.setDepthBufferSize(24);
-  format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-  setFormat(format);
+  //  QSurfaceFormat format;
+  //  format.setDepthBufferSize(24);
+  //  format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  //  setFormat(format);
   this->colorDialog = new QColorDialog(this);
   connect(this->colorDialog, SIGNAL(colorSelected(QColor)), this,
           SLOT(changeColor(QColor)));
@@ -26,19 +26,39 @@ Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
 }
 
 void Scene::initializeGL() {
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
-  glEnable(GL_DEPTH_TEST);
-  glClearDepth(1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearDepth(1.0);
   glDepthFunc(GL_LESS);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glEnable(GL_COLOR_MATERIAL);
-  glEnable(GL_POINT_SMOOTH);
-  glShadeModel(GL_SMOOTH);
+  glEnable(GL_DEPTH_TEST);
+
+  //  float ambientLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
+  //  float diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  //  float specularLight[] = {0.5f, 0.5f, 0.5f, 1.0f};
+  //  float lightPos[] = {25.0f, 25.0f, 0.0f, 1.0f};
+  //  glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+  //  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+  //  glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+  //  glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+  //  float globalAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+  //  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
+
+  //  glEnable(GL_LIGHTING);
+  //  glEnable(GL_LIGHT0);
+  //  glEnable(GL_COLOR_MATERIAL);
+  //  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+  //  float specularColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  //  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specularColor);
+
+  //  float emissionColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
+  //  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emissionColor);
 }
 
 void Scene::resizeGL(int w, int h) {
+
+  glViewport(0, 0, w, h);
   m_projection.setToIdentity();
   m_projection.perspective(45.0f, w / float(h), 1.0f, 200.0f);
   this->w = w;
@@ -48,17 +68,13 @@ void Scene::resizeGL(int w, int h) {
 void Scene::paintGL() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
-  glClearDepth(1.0f);
-  glDepthFunc(GL_LEQUAL);
-  glViewport(0, 0, w, h);
 
   QMatrix4x4 projectionMatrix = this->m_projection * m_camera.toMatrix();
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(projectionMatrix.data());
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glLightfv(GL_LIGHT0, GL_POSITION, g_LightPosition);
+
   drawCoordAxes();
   for (int i = 0; i < this->cubes.size(); i++) {
     this->cubes[i].draw();

@@ -87,8 +87,6 @@ private:
   float rotationAngle = 15.0f;
   float translationUnit = 1.0f;
   float scalingFactor = 1.5f;
-
-  float g_LightPosition[4] = {50.0f, 50.0f, 50.0f, 1};
 };
 
 #endif // SCENE_H
