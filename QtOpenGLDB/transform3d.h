@@ -38,6 +38,7 @@ public:
   const QVector3D &scale() const;
   const QQuaternion &rotation() const;
   const QMatrix4x4 &toMatrix();
+  QVector3D centreOfMass;
 
 private:
   bool m_dirty;

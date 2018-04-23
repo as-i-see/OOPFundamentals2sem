@@ -283,3 +283,21 @@ void Prism::drawYZProjection() {
   }
   glPopMatrix();
 }
+
+QVector3D Prism::centreOfMass() {
+  QVector3D bottomCenter;
+  for (int i = 0; i < 6; i++) {
+    bottomCenter += this->dots[i].position();
+  }
+  bottomCenter /= 6.0f;
+  QVector3D topCenter;
+  for (int i = 0; i < 6; i++) {
+    topCenter += this->dots[6 + i].position();
+  }
+  topCenter /= 6.0f;
+  QVector3D center;
+  center += bottomCenter;
+  center += topCenter;
+  center /= 2.0f;
+  return center;
+}

@@ -10,13 +10,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QSqlDatabase::addDatabase("QPSQL");
 
   this->saver = new Saver(this);
+  this->loader = new Loader();
+  this->scene = ui->openGLWidget;
+  this->prefsEditor = new preferencesEditor();
+
   connect(ui->actionNew, &QAction::triggered, this->newActionForm,
           &NewActionForm::show);
   connect(ui->actionSave_as, &QAction::triggered, this->saver, &Saver::show);
 
-  this->loader = new Loader();
-  this->scene = ui->openGLWidget;
   connect(ui->actionOpen, &QAction::triggered, this->loader, &Loader::show);
+  connect(ui->actionEdition_setting, &QAction::triggered, this->prefsEditor,
+          &preferencesEditor::show);
 
   connect(this->newActionForm,
           SIGNAL(creationCompleted(
@@ -33,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       this->scene,
       SLOT(sceneConfigRequest(
           std::pair<std::vector<Cube>, std::vector<Prism>> &)));
+
+  connect(this->prefsEditor, SIGNAL(sendPrefs(std::vector<float>)), this->scene,
+          SLOT(setPreferences(std::vector<float>)));
   setCentralWidget(ui->openGLWidget);
 
   this->scene->setFocus();

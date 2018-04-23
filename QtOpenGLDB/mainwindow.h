@@ -4,6 +4,7 @@
 #include "cube.h"
 #include "loader.h"
 #include "newactionform.h"
+#include "preferenceseditor.h"
 #include "saver.h"
 #include "toolbar.h"
 #include "ui_mainwindow.h"
@@ -29,6 +30,7 @@ private:
   Loader *loader;
   Scene *scene;
   ToolBar *toolBar;
+  preferencesEditor *prefsEditor;
 };
 
 #endif // MAINWINDOW_H

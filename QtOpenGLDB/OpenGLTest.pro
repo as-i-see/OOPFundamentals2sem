@@ -37,7 +37,8 @@ SOURCES += \
     saver.cpp \
     loader.cpp \
     prism.cpp \
-    prismcreation.cpp
+    prismcreation.cpp \
+    preferenceseditor.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -53,7 +54,8 @@ HEADERS += \
     saver.h \
     loader.h \
     prism.h \
-    prismcreation.h
+    prismcreation.h \
+    preferenceseditor.h
 
 FORMS += \
     mainwindow.ui \
@@ -61,11 +63,8 @@ FORMS += \
     cubecreation.ui \
     saver.ui \
     loader.ui \
-    prismcreation.ui
-
-DISTFILES += \
-    shaders/simple.frag \
-    shaders/simple.vert
+    prismcreation.ui \
+    preferenceseditor.ui
 
 RESOURCES += \
     resources.qrc

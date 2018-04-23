@@ -21,6 +21,8 @@ bool Saver::persist() {
   this->cubeTableName = tableName + "_cubes";
   this->prismTableName = tableName + "_prisms";
   bool ok = this->db.open();
+  this->db.exec(QString("DROP TABLE IF EXISTS " + cubeTableName + ";"));
+  this->db.exec(QString("DROP TABLE IF EXISTS " + prismTableName + ";"));
   this->db.exec(QString("CREATE TABLE " + cubeTableName +
                         " ("
                         "  x   NUMERIC(6,4), "

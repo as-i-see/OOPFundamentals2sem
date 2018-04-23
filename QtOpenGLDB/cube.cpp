@@ -105,3 +105,84 @@ void Cube::draw() {
   }
   glPopMatrix();
 }
+
+void Cube::drawXYProjection() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f((this->transform.toMatrix() * this->dots[4 * j].position()).x(),
+               (this->transform.toMatrix() * this->dots[4 * j].position()).y(),
+               0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[4 * j + 1].position()).x(),
+        (this->transform.toMatrix() * this->dots[4 * j + 1].position()).y(), 0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[4 * j + 2].position()).x(),
+        (this->transform.toMatrix() * this->dots[4 * j + 2].position()).y(), 0);
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[4 * j + 3].position()).x(),
+        (this->transform.toMatrix() * this->dots[4 * j + 3].position()).y(), 0);
+    glEnd();
+  }
+}
+
+void Cube::drawXZProjection() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f((this->transform.toMatrix() * this->dots[4 * j].position()).x(),
+               0,
+               (this->transform.toMatrix() * this->dots[4 * j].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[4 * j + 1].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[4 * j + 1].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[4 * j + 2].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[4 * j + 2].position()).z());
+    glVertex3f(
+        (this->transform.toMatrix() * this->dots[4 * j + 3].position()).x(), 0,
+        (this->transform.toMatrix() * this->dots[4 * j + 3].position()).z());
+    glEnd();
+  }
+}
+
+void Cube::drawYZProjection() {
+  if (this->isSelected()) {
+    glColor3f(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
+  } else {
+    glColor3f(this->color.x(), this->color.y(), this->color.z());
+  }
+  for (int j = 0; j < 6; j++) {
+    glBegin(GL_QUADS);
+    glVertex3f(0,
+               (this->transform.toMatrix() * this->dots[4 * j].position()).y(),
+               (this->transform.toMatrix() * this->dots[4 * j].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[4 * j + 1].position()).y(),
+        (this->transform.toMatrix() * this->dots[4 * j + 1].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[4 * j + 2].position()).y(),
+        (this->transform.toMatrix() * this->dots[4 * j + 2].position()).z());
+    glVertex3f(
+        0, (this->transform.toMatrix() * this->dots[4 * j + 3].position()).y(),
+        (this->transform.toMatrix() * this->dots[4 * j + 3].position()).z());
+    glEnd();
+  }
+}
+
+QVector3D Cube::centreOfMass() {
+  QVector3D com;
+  for (int i = 0; i < 8; i++) {
+    com += this->dots[i].position();
+  }
+  com /= 8.0f;
+  return com;
+}

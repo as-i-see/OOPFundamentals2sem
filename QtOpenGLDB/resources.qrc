@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>shaders/simple.frag</file>
-        <file>shaders/simple.vert</file>
         <file>images/cube.jpg</file>
         <file>images/plane.jpg</file>
         <file>images/plane-xy.jpg</file>
@@ -21,5 +19,6 @@
         <file>images/z-rotation.jpg</file>
         <file>images/prism.jpg</file>
         <file>images/palette.jpg</file>
+        <file>images/scale.jpg</file>
     </qresource>
 </RCC>

@@ -34,6 +34,7 @@ public:
   void drawXYProjection();
   void drawXZProjection();
   void drawYZProjection();
+  QVector3D centreOfMass();
 
 private:
   std::vector<Vertex> dots;

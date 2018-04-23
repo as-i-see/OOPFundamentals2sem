@@ -22,6 +22,7 @@ Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
   this->colorDialog = new QColorDialog(this);
   connect(this->colorDialog, SIGNAL(colorSelected(QColor)), this,
           SLOT(changeColor(QColor)));
+  coordAxes = getCoordAxes();
 }
 
 void Scene::initializeGL() {
@@ -29,52 +30,12 @@ void Scene::initializeGL() {
   connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
   glEnable(GL_DEPTH_TEST);
   glClearDepth(1.0f);
-  glDepthFunc(GL_LEQUAL);
-
-  glLineWidth(0.1f);
-
-  m_program = new QOpenGLShaderProgram();
-  m_program->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                     ":/shaders/simple.vert");
-  m_program->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                     ":/shaders/simple.frag");
-  m_program->link();
-  m_program->bind();
-
-  u_modelToWorld = m_program->uniformLocation("modelToWorld");
-  u_worldToCamera = m_program->uniformLocation("worldToCamera");
-  u_cameraToView = m_program->uniformLocation("cameraToView");
-  u_figureColor = m_program->uniformLocation("figureColor");
-
-  coordsVAO.create();
-  coordsVAO.bind();
-
-  coordsVBO.create();
-  coordsVBO.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  coordsVBO.bind();
-
-  m_program->enableAttributeArray(0);
-  m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 24);
-
-  auto coordsVec = getCoords();
-  coordsVBO.allocate(15120);
-  for (unsigned i = 0; i < 3; i++) {
-    auto ptr = coordsVBO.mapRange(i * 4992, 4992,
-                                  QOpenGLBuffer::RangeInvalidate |
-                                      QOpenGLBuffer::RangeWrite);
-    memcpy(ptr, coordsVec[i].data(), 4992);
-    coordsVBO.unmap();
-  }
-  auto axesVec = getAxes();
-  auto ptr = coordsVBO.mapRange(
-      14976, 144, QOpenGLBuffer::RangeInvalidate | QOpenGLBuffer::RangeWrite);
-  memcpy(ptr, axesVec.data(), 144);
-  coordsVBO.unmap();
-
-  coordsVBO.release();
-  coordsVAO.release();
-
-  m_program->release();
+  glDepthFunc(GL_LESS);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_POINT_SMOOTH);
+  glShadeModel(GL_SMOOTH);
 }
 
 void Scene::resizeGL(int w, int h) {
@@ -91,30 +52,17 @@ void Scene::paintGL() {
   glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
   glViewport(0, 0, w, h);
-  glLineWidth(0.1f);
-  m_program->bind();
-
-  coordsVAO.bind();
-  m_program->setUniformValue(u_cameraToView, m_projection);
-  m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
-  m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix()); // yeah
-  m_program->setUniformValue(u_figureColor, this->redColor);
-  glDrawArrays(GL_LINES, 0, 208);
-  m_program->setUniformValue(u_figureColor, this->greenColor);
-  glDrawArrays(GL_LINES, 208, 208);
-  m_program->setUniformValue(u_figureColor, this->blueColor);
-  glDrawArrays(GL_LINES, 416, 208);
-  glLineWidth(2.0f);
-  m_program->setUniformValue(u_figureColor, this->whiteColor);
-  glDrawArrays(GL_LINES, 624, 630);
-  coordsVAO.release();
-  m_program->release();
 
   QMatrix4x4 projectionMatrix = this->m_projection * m_camera.toMatrix();
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(projectionMatrix.data());
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  glLightfv(GL_LIGHT0, GL_POSITION, g_LightPosition);
+  drawCoordAxes();
+  for (int i = 0; i < this->cubes.size(); i++) {
+    this->cubes[i].draw();
+  }
   for (int i = 0; i < this->prisms.size(); i++) {
     this->prisms[i].draw();
   }
@@ -122,19 +70,55 @@ void Scene::paintGL() {
     for (int i = 0; i < this->prisms.size(); i++) {
       this->prisms[i].drawXYProjection();
     }
+    for (int i = 0; i < this->cubes.size(); i++) {
+      this->cubes[i].drawXYProjection();
+    }
   }
   if (this->showYZ) {
     for (int i = 0; i < this->prisms.size(); i++) {
       this->prisms[i].drawYZProjection();
+    }
+    for (int i = 0; i < this->cubes.size(); i++) {
+      this->cubes[i].drawYZProjection();
     }
   }
   if (this->showXZ) {
     for (int i = 0; i < this->prisms.size(); i++) {
       this->prisms[i].drawXZProjection();
     }
+    for (int i = 0; i < this->cubes.size(); i++) {
+      this->cubes[i].drawXZProjection();
+    }
   }
-  for (int i = 0; i < this->cubes.size(); i++) {
-    this->cubes[i].draw();
+}
+
+void Scene::drawCoordAxes() {
+  glLineWidth(0.1f);
+  for (int i = 0; i < 3; i++) {
+    glColor3f(this->coordsColors[i].x(), this->coordsColors[i].y(),
+              this->coordsColors[i].z());
+    for (int j = 0; j < 104; j++) {
+      glBegin(GL_LINES);
+      glVertex3f(this->coordAxes[208 * i + 2 * j].position().x(),
+                 this->coordAxes[208 * i + 2 * j].position().y(),
+                 this->coordAxes[208 * i + 2 * j].position().z());
+      glVertex3f(this->coordAxes[208 * i + 2 * j + 1].position().x(),
+                 this->coordAxes[208 * i + 2 * j + 1].position().y(),
+                 this->coordAxes[208 * i + 2 * j + 1].position().z());
+      glEnd();
+    }
+  }
+  glLineWidth(2.5f);
+  glColor3f(this->whiteColor.x(), this->whiteColor.y(), this->whiteColor.z());
+  for (int i = 0; i < 3; i++) {
+    glBegin(GL_LINES);
+    glVertex3f(this->coordAxes[624 + 2 * i].position().x(),
+               this->coordAxes[624 + 2 * i].position().y(),
+               this->coordAxes[624 + 2 * i].position().z());
+    glVertex3f(this->coordAxes[624 + 2 * i + 1].position().x(),
+               this->coordAxes[624 + 2 * i + 1].position().y(),
+               this->coordAxes[624 + 2 * i + 1].position().z());
+    glEnd();
   }
 }
 
@@ -274,32 +258,29 @@ int Scene::retrieveObjectID(int x, int y) {
   return 0;
 }
 
-std::vector<std::vector<Vertex>> Scene::getCoords() {
-  std::vector<std::vector<Vertex>> coords(3);
-  for (int j = -51; j < 52; j += 2) {
-    coords[0].push_back(Vertex(QVector3D(0.0f, float(j), 50.0f)));
-    coords[0].push_back(Vertex(QVector3D(0.0f, float(j), -50.0f)));
-
-    coords[0].push_back(Vertex(QVector3D(0.0f, 50.0f, float(j))));
-    coords[0].push_back(Vertex(QVector3D(0.0f, -50.0f, float(j))));
-
-    coords[1].push_back(Vertex(QVector3D(float(j), 0.0f, 50.0f)));
-    coords[1].push_back(Vertex(QVector3D(float(j), 0.0f, -50.0f)));
-
-    coords[1].push_back(Vertex(QVector3D(0.0f, 50.0f, float(j))));
-    coords[1].push_back(Vertex(QVector3D(0.0f, -50.0f, float(j))));
-
-    coords[2].push_back(Vertex(QVector3D(float(j), 50.0f, 0.0f)));
-    coords[2].push_back(Vertex(QVector3D(float(j), -50.0f, 0.0f)));
-
-    coords[2].push_back(Vertex(QVector3D(50.0f, float(j), 0.0f)));
-    coords[2].push_back(Vertex(QVector3D(-50.0f, float(j), 0.0f)));
-  }
-  return coords;
-}
-
-std::vector<Vertex> Scene::getAxes() {
+std::vector<Vertex> Scene::getCoordAxes() {
   std::vector<Vertex> coords;
+  for (int j = -51; j < 52; j += 2) {
+    coords.push_back(Vertex(QVector3D(0.0f, float(j), 50.0f)));
+    coords.push_back(Vertex(QVector3D(0.0f, float(j), -50.0f)));
+
+    coords.push_back(Vertex(QVector3D(0.0f, 50.0f, float(j))));
+    coords.push_back(Vertex(QVector3D(0.0f, -50.0f, float(j))));
+  }
+  for (int j = -51; j < 52; j += 2) {
+    coords.push_back(Vertex(QVector3D(float(j), 0.0f, 50.0f)));
+    coords.push_back(Vertex(QVector3D(float(j), 0.0f, -50.0f)));
+
+    coords.push_back(Vertex(QVector3D(50.0f, 0.0f, float(j))));
+    coords.push_back(Vertex(QVector3D(-50.0f, 0.0f, float(j))));
+  }
+  for (int j = -51; j < 52; j += 2) {
+    coords.push_back(Vertex(QVector3D(float(j), 50.0f, 0.0f)));
+    coords.push_back(Vertex(QVector3D(float(j), -50.0f, 0.0f)));
+
+    coords.push_back(Vertex(QVector3D(50.0f, float(j), 0.0f)));
+    coords.push_back(Vertex(QVector3D(-50.0f, float(j), 0.0f)));
+  }
   coords.push_back(Vertex(QVector3D(50.0f, 0.0f, 0.0f)));
   coords.push_back(Vertex(QVector3D(-50.0f, 0.0f, 0.0f)));
   coords.push_back(Vertex(QVector3D(0.0f, 50.0f, 0.0f)));
@@ -334,23 +315,51 @@ void Scene::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void Scene::rotateX() {
-  if (this->selectedCubes.empty())
-    return;
   QQuaternion xRotation =
-      QQuaternion::fromAxisAndAngle(10.0f, 0.0f, 0.0f, this->rotationAngle);
+      QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, this->rotationAngle);
   for (int i = 0; i < this->selectedCubes.size(); i++) {
     int ID = this->selectedCubes[i];
     this->cubes[ID].transform.rotate(xRotation);
   }
+  for (int i = 0; i < this->selectedPrisms.size(); i++) {
+    int ID = this->selectedPrisms[i];
+    this->prisms[ID].transform.rotate(xRotation);
+  }
 }
-void Scene::rotateY() {}
-void Scene::rotateZ() {}
+
+void Scene::rotateY() {
+  QQuaternion yRotation =
+      QQuaternion::fromAxisAndAngle(0.0f, 1.0f, 0.0f, this->rotationAngle);
+  for (int i = 0; i < this->selectedCubes.size(); i++) {
+    int ID = this->selectedCubes[i];
+    this->cubes[ID].transform.rotate(yRotation);
+  }
+  for (int i = 0; i < this->selectedPrisms.size(); i++) {
+    int ID = this->selectedPrisms[i];
+    this->prisms[ID].transform.rotate(yRotation);
+  }
+}
+
+void Scene::rotateZ() {
+  QQuaternion zRotation =
+      QQuaternion::fromAxisAndAngle(0.0f, 0.0f, 1.0f, this->rotationAngle);
+  for (int i = 0; i < this->selectedCubes.size(); i++) {
+    int ID = this->selectedCubes[i];
+    this->cubes[ID].transform.rotate(zRotation);
+  }
+  for (int i = 0; i < this->selectedPrisms.size(); i++) {
+    int ID = this->selectedPrisms[i];
+    this->prisms[ID].transform.rotate(zRotation);
+  }
+}
+
 void Scene::showXYProjection() {
   if (this->showXY)
     this->showXY = false;
   else
     this->showXY = true;
 }
+
 void Scene::showYZProjection() {
   if (this->showYZ)
     this->showYZ = false;
@@ -364,52 +373,63 @@ void Scene::showXZProjection() {
   else
     this->showXZ = true;
 }
+
 void Scene::moveXPos() {
   for (auto ID : this->selectedCubes) {
-    this->cubes[ID].transform.translate(1.0f, 0.0f, 0.0f);
+    this->cubes[ID].transform.translate(1.0f * translationUnit, 0.0f, 0.0f);
   }
   for (auto ID : this->selectedPrisms) {
-    this->prisms[ID].transform.translate(1.0f, 0.0f, 0.0f);
+    this->prisms[ID].transform.translate(1.0f * translationUnit, 0.0f, 0.0f);
   }
 }
+
 void Scene::moveXNeg() {
   for (auto ID : this->selectedCubes) {
-    this->cubes[ID].transform.translate(-1.0f, 0.0f, 0.0f);
+    this->cubes[ID].transform.translate(-1.0f * translationUnit, 0.0f, 0.0f);
   }
   for (auto ID : this->selectedPrisms) {
-    this->prisms[ID].transform.translate(-1.0f, 0.0f, 0.0f);
+    this->prisms[ID].transform.translate(-1.0f * translationUnit, 0.0f, 0.0f);
   }
 }
 void Scene::moveYPos() {
   for (auto ID : this->selectedCubes) {
-    this->cubes[ID].transform.translate(0.0f, 1.0f, 0.0f);
+    this->cubes[ID].transform.translate(0.0f, 1.0f * translationUnit, 0.0f);
   }
   for (auto ID : this->selectedPrisms) {
-    this->prisms[ID].transform.translate(0.0f, 1.0f, 0.0f);
+    this->prisms[ID].transform.translate(0.0f, 1.0f * translationUnit, 0.0f);
   }
 }
 void Scene::moveYNeg() {
   for (auto ID : this->selectedCubes) {
-    this->cubes[ID].transform.translate(0.0f, -1.0f, 0.0f);
+    this->cubes[ID].transform.translate(0.0f, -1.0f * translationUnit, 0.0f);
   }
   for (auto ID : this->selectedPrisms) {
-    this->prisms[ID].transform.translate(0.0f, -1.0f, 0.0f);
+    this->prisms[ID].transform.translate(0.0f, -1.0f * translationUnit, 0.0f);
   }
 }
 void Scene::moveZPos() {
   for (auto ID : this->selectedCubes) {
-    this->cubes[ID].transform.translate(0.0f, 0.0f, 1.0f);
+    this->cubes[ID].transform.translate(0.0f, 0.0f, 1.0f * translationUnit);
   }
   for (auto ID : this->selectedPrisms) {
-    this->prisms[ID].transform.translate(0.0f, 0.0f, 1.0f);
+    this->prisms[ID].transform.translate(0.0f, 0.0f, 1.0f * translationUnit);
   }
 }
 void Scene::moveZNeg() {
   for (auto ID : this->selectedCubes) {
-    this->cubes[ID].transform.translate(0.0f, 0.0f, -1.0f);
+    this->cubes[ID].transform.translate(0.0f, 0.0f, -1.0f * translationUnit);
   }
   for (auto ID : this->selectedPrisms) {
-    this->prisms[ID].transform.translate(0.0f, 0.0f, -1.0f);
+    this->prisms[ID].transform.translate(0.0f, 0.0f, -1.0f * translationUnit);
+  }
+}
+
+void Scene::scale() {
+  for (auto ID : this->selectedCubes) {
+    this->cubes[ID].transform.scale(this->scalingFactor);
+  }
+  for (auto ID : this->selectedPrisms) {
+    this->prisms[ID].transform.scale(this->scalingFactor);
   }
 }
 
@@ -433,10 +453,12 @@ void Scene::loadScene(
   for (int i = 0; i < this->cubes.size(); i++) {
     this->cubes[i].ID = 2 * i + 1;
     this->cubes[i].setSelected(false);
+    this->cubes[i].transform.centreOfMass = this->cubes[i].centreOfMass();
   }
   for (int i = 0; i < this->prisms.size(); i++) {
     this->prisms[i].ID = 2 * i + 2;
     this->prisms[i].setSelected(false);
+    this->prisms[i].transform.centreOfMass = this->prisms[i].centreOfMass();
   }
   QOpenGLWidget::update();
 }
@@ -445,4 +467,10 @@ void Scene::sceneConfigRequest(
     std::pair<std::vector<Cube>, std::vector<Prism>> &config) {
   config.first = this->cubes;
   config.second = this->prisms;
+}
+
+void Scene::setPreferences(std::vector<float> prefs) {
+  this->rotationAngle = prefs[0];
+  this->translationUnit = prefs[1];
+  this->scalingFactor = prefs[2];
 }

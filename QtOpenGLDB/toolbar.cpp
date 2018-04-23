@@ -71,6 +71,14 @@ ToolBar::ToolBar(QWidget *parent, Scene *glWidget) : QToolBar(parent) {
   addAction(zRightAction);
 
   addSeparator();
+
+  scaleAction =
+      new QAction(QIcon(":/images/scale.jpg"), QString("Scale"), this);
+
+  connect(scaleAction, SIGNAL(triggered(bool)), glWidget, SLOT(scale()));
+  addAction(scaleAction);
+
+  addSeparator();
   pickColorAction =
       new QAction(QIcon(":/images/palette.jpg"), QString("Change color"), this);
   connect(pickColorAction, SIGNAL(triggered(bool)), glWidget->colorDialog,

@@ -24,7 +24,7 @@ public:
   std::vector<Cube> cubes;
   std::vector<Prism> prisms;
   bool multipleFaceMode, multipleFigureMode;
-  float rotationAngle = 15.0f;
+
   QColorDialog *colorDialog;
 public slots:
   void rotateX();
@@ -39,9 +39,11 @@ public slots:
   void moveYNeg();
   void moveZPos();
   void moveZNeg();
+  void scale();
   void changeColor(QColor);
   void loadScene(std::pair<std::vector<Cube>, std::vector<Prism>>);
   void sceneConfigRequest(std::pair<std::vector<Cube>, std::vector<Prism>> &);
+  void setPreferences(std::vector<float>);
 
 protected:
   void initializeGL();
@@ -57,28 +59,22 @@ protected slots:
 private:
   QPoint lastPos;
   int w, h;
-  QOpenGLShaderProgram *m_program;
-  QOpenGLVertexArrayObject coordsVAO;
-  QOpenGLBuffer coordsVBO;
 
-  // Shader Information
-  int u_modelToWorld;
-  int u_worldToCamera;
-  int u_cameraToView;
-  int u_figureColor;
   QMatrix4x4 m_projection;
   Transform3D m_transform;
   Camera3D m_camera;
 
-  QVector3D redColor = QVector3D(1.0f, 0.0f, 0.0f);
-  QVector3D greenColor = QVector3D(0.0f, 1.0f, 0.0f);
-  QVector3D blueColor = QVector3D(0.0f, 0.0f, 1.0f);
+  std::vector<QVector3D> coordsColors = {QVector3D(1.0f, 0.0f, 0.0f),
+                                         QVector3D(0.0f, 1.0f, 0.0f),
+                                         QVector3D(0.0f, 0.0f, 1.0f)};
   QVector3D whiteColor = QVector3D(1.0f, 1.0f, 1.0f);
+
   QVector3D selectionColor =
       QVector3D(153.0f / 255.0f, 51.0f / 255.0f, 255.0f / 255.0f);
 
-  std::vector<std::vector<Vertex>> getCoords();
-  std::vector<Vertex> getAxes();
+  std::vector<Vertex> coordAxes;
+  std::vector<Vertex> getCoordAxes();
+  void drawCoordAxes();
   std::vector<int> selectedCubes;
   std::vector<int> selectedPrisms;
 
@@ -87,6 +83,12 @@ private:
   bool showXY = false;
   bool showYZ = false;
   bool showXZ = false;
+
+  float rotationAngle = 15.0f;
+  float translationUnit = 1.0f;
+  float scalingFactor = 1.5f;
+
+  float g_LightPosition[4] = {50.0f, 50.0f, 50.0f, 1};
 };
 
 #endif // SCENE_H

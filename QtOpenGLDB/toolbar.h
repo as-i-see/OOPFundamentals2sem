@@ -21,6 +21,7 @@ private:
   QAction *yLeftAction;
   QAction *zRightAction;
   QAction *zLeftAction;
+  QAction *scaleAction;
   QAction *pickColorAction;
 
 public:
