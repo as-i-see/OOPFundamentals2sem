@@ -10,14 +10,13 @@ Cube::Cube(const Cube &anotherCube) {
   this->dots = std::vector<Vertex>(anotherCube.dots);
   this->color = QVector3D(anotherCube.color);
   this->selected = anotherCube.selected;
+  this->transform = anotherCube.transform;
 }
 
 Cube::Cube(std::vector<Vertex> dots, QVector3D color)
     : dots(dots), color(color) {
   this->selected = false;
 }
-
-Cube::~Cube() { this->dots.clear(); }
 
 std::vector<Vertex> &Cube::getDots() { return this->dots; }
 

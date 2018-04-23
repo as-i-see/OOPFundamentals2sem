@@ -10,6 +10,7 @@ Prism::Prism(const Prism &other) {
   this->dots = std::vector<Vertex>(other.dots);
   this->color = QVector3D(other.color);
   this->selected = other.selected;
+  this->transform = other.transform;
 }
 
 Prism::Prism(std::vector<Vertex> dots, QVector3D color)

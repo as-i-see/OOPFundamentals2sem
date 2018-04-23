@@ -13,12 +13,12 @@ public:
   Cube();
   Cube(std::vector<Vertex>, QVector3D);
   Cube(const Cube &);
-  ~Cube();
   Cube &operator=(const Cube &other) {
     if (&other == this)
       return *this;
     this->dots = other.dots;
     this->color = other.color;
+    this->transform = other.transform;
     return *this;
   }
   std::vector<Vertex> &getDots();

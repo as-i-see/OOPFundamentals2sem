@@ -19,6 +19,7 @@ public:
       return *this;
     this->dots = other.dots;
     this->color = other.color;
+    this->transform = other.transform;
     return *this;
   }
   std::vector<Vertex> &getDots();
