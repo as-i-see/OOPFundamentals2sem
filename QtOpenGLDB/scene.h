@@ -23,8 +23,6 @@ public:
   Scene(QWidget *parent);
   std::vector<Cube> cubes;
   std::vector<Prism> prisms;
-  bool multipleFaceMode, multipleFigureMode;
-
   QColorDialog *colorDialog;
 public slots:
   void rotateX();

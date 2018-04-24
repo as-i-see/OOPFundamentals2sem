@@ -61,15 +61,15 @@ void Cube::reconstructCube() {
   Vertex VERTEX_BBR(VERTEX_FBR.position() + frontwardVector);
   std::vector<Vertex> vertices = {
       // Face 1 (Front)
-      VERTEX_FTR, VERTEX_FTL, VERTEX_FBL, VERTEX_FBR,
+      VERTEX_FTL, VERTEX_FBL, VERTEX_FBR, VERTEX_FTR,
       // Face 2 (Back)
-      VERTEX_BBR, VERTEX_BBL, VERTEX_BTL, VERTEX_BTR,
+      VERTEX_BTR, VERTEX_BBR, VERTEX_BBL, VERTEX_BTL,
       // Face 3 (Top)
-      VERTEX_FTR, VERTEX_FTL, VERTEX_BTL, VERTEX_BTR,
+      VERTEX_BTL, VERTEX_FTL, VERTEX_FTR, VERTEX_BTR,
       // Face 4 (Bottom)
-      VERTEX_FBR, VERTEX_FBL, VERTEX_BBL, VERTEX_BBR,
+      VERTEX_BBR, VERTEX_FBR, VERTEX_FBL, VERTEX_BBL,
       // Face 5 (Left)
-      VERTEX_FBL, VERTEX_FTL, VERTEX_BTL, VERTEX_BBL,
+      VERTEX_BTL, VERTEX_BBL, VERTEX_FBL, VERTEX_FTL,
       // Face 6 (Right)
       VERTEX_FTR, VERTEX_FBR, VERTEX_BBR, VERTEX_BTR};
   this->dots = std::move(vertices);
@@ -87,8 +87,13 @@ void Cube::draw() {
   }
   glPushMatrix();
   glLoadMatrixf(this->transform.toMatrix().data());
+
   for (int j = 0; j < 6; j++) {
     glBegin(GL_QUADS);
+    QVector3D normal = QVector3D::normal(this->dots[4 * j].position(),
+                                         this->dots[4 * j + 1].position(),
+                                         this->dots[4 * j + 2].position());
+    glNormal3f(normal.x(), normal.y(), normal.z());
     glVertex3f(this->dots[4 * j].position().x(),
                this->dots[4 * j].position().y(),
                this->dots[4 * j].position().z());

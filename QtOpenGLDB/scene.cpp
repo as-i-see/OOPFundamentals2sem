@@ -27,33 +27,28 @@ Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
 
 void Scene::initializeGL() {
   connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClearDepth(1.0);
   glDepthFunc(GL_LESS);
+  glShadeModel(GL_SMOOTH);
+
+  float ambientLight[] = {0.2f, 0.2f, 0.2f, 1.0f};
+  float diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  float specularLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+  glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+  float lightPos[] = {1.0f, 1.0f, 1.0f, 0.0f};
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+  glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
   glEnable(GL_DEPTH_TEST);
-
-  //  float ambientLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
-  //  float diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
-  //  float specularLight[] = {0.5f, 0.5f, 0.5f, 1.0f};
-  //  float lightPos[] = {25.0f, 25.0f, 0.0f, 1.0f};
-  //  glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-  //  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-  //  glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
-  //  glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-
-  //  float globalAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
-  //  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
-
-  //  glEnable(GL_LIGHTING);
-  //  glEnable(GL_LIGHT0);
-  //  glEnable(GL_COLOR_MATERIAL);
-  //  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-
-  //  float specularColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-  //  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specularColor);
-
-  //  float emissionColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
-  //  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emissionColor);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_COLOR_MATERIAL);
 }
 
 void Scene::resizeGL(int w, int h) {

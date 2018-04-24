@@ -35,7 +35,7 @@ void Prism::reconstructPrism() {
   Vertex TE(BE.position() + upVector);
   Vertex TF(BF.position() + upVector);
   std::vector<Vertex> vertices = {// Bottom
-                                  BA, BB, BC, BD, BE, BF,
+                                  BA, BF, BE, BD, BC, BB,
                                   // Top
                                   TA, TB, TC, TD, TE, TF,
                                   // Face 1
@@ -71,8 +71,13 @@ void Prism::draw() {
   }
   glPushMatrix();
   glLoadMatrixf(this->transform.toMatrix().data());
+
   for (int j = 0; j < 2; j++) {
     glBegin(GL_POLYGON);
+    QVector3D normal = QVector3D::normal(this->dots[6 * j].position(),
+                                         this->dots[6 * j + 1].position(),
+                                         this->dots[6 * j + 2].position());
+    glNormal3f(normal.x(), normal.y(), normal.z());
     glVertex3f(this->dots[6 * j].position().x(),
                this->dots[6 * j].position().y(),
                this->dots[6 * j].position().z());
@@ -95,6 +100,10 @@ void Prism::draw() {
   }
   for (int j = 0; j < 6; j++) {
     glBegin(GL_QUADS);
+    QVector3D normal = QVector3D::normal(this->dots[12 + 4 * j].position(),
+                                         this->dots[12 + 4 * j + 1].position(),
+                                         this->dots[12 + 4 * j + 2].position());
+    glNormal3f(normal.x(), normal.y(), normal.z());
     glVertex3f(this->dots[12 + 4 * j].position().x(),
                this->dots[12 + 4 * j].position().y(),
                this->dots[12 + 4 * j].position().z());
