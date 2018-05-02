@@ -2,11 +2,10 @@
 #define SAVER_H
 
 #include "cube.h"
+#include "dbaccessor.h"
 #include "prism.h"
 #include "vertex.h"
 #include <QMainWindow>
-#include <QSqlQuery>
-#include <QtSql>
 #include <vector>
 
 namespace Ui {
@@ -19,20 +18,17 @@ class Saver : public QMainWindow {
 public:
   explicit Saver(QMainWindow *parent = 0);
   ~Saver();
+  void setDBAccessor(DBAccessor *);
 private slots:
-  bool persist();
+  void persist();
 
 signals:
   void dataUpdate(std::pair<std::vector<Cube>, std::vector<Prism>> &);
 
 private:
   Ui::Saver *ui;
-  QSqlDatabase db;
-  QSqlQuery *saveCubeVertex, *savePrismVertex;
-  QString cubeTableName, prismTableName;
-  std::vector<Cube> cubes;
-  std::vector<Prism> prisms;
-  void applyLiveTransformations();
+  DBAccessor *dbAccessor;
+  void applyLiveTransformations(std::vector<Cube> &, std::vector<Prism> &);
 };
 
 #endif // SAVER_H

@@ -39,7 +39,8 @@ SOURCES += \
     prism.cpp \
     prismcreation.cpp \
     preferenceseditor.cpp \
-    figure.cpp
+    figure.cpp \
+    dbaccessor.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -57,7 +58,8 @@ HEADERS += \
     prism.h \
     prismcreation.h \
     preferenceseditor.h \
-    figure.h
+    figure.h \
+    dbaccessor.h
 
 FORMS += \
     mainwindow.ui \

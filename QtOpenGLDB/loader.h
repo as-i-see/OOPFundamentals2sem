@@ -2,10 +2,9 @@
 #define LOADER_H
 
 #include "cube.h"
+#include "dbaccessor.h"
 #include "prism.h"
 #include <QMainWindow>
-#include <QSqlQuery>
-#include <QtSql>
 #include <vector>
 
 namespace Ui {
@@ -18,6 +17,7 @@ class Loader : public QMainWindow {
 public:
   explicit Loader(QWidget *parent = 0);
   ~Loader();
+  void setDBAccessor(DBAccessor *);
 public slots:
   void load();
 signals:
@@ -25,8 +25,7 @@ signals:
 
 private:
   Ui::Loader *ui;
-  QSqlDatabase db;
-  QString cubeTableName, prismTableName;
+  DBAccessor *dbAccessor;
 };
 
 #endif // LOADER_H

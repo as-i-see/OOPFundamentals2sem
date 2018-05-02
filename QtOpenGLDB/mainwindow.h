@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "cube.h"
+#include "dbaccessor.h"
 #include "loader.h"
 #include "newactionform.h"
 #include "preferenceseditor.h"
@@ -10,7 +11,6 @@
 #include "ui_mainwindow.h"
 #include <QAction>
 #include <QMainWindow>
-#include <QSqlDatabase>
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +26,7 @@ public:
 private:
   Ui::MainWindow *ui;
   NewActionForm *newActionForm;
+  DBAccessor *dbAccessor;
   Saver *saver;
   Loader *loader;
   Scene *scene;

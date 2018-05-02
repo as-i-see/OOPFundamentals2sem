@@ -7,10 +7,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   ui->setupUi(this);
   this->newActionForm = new NewActionForm(this);
 
-  QSqlDatabase::addDatabase("QPSQL");
-
+  this->dbAccessor = new DBAccessor;
   this->saver = new Saver(this);
+  this->saver->setDBAccessor(this->dbAccessor);
   this->loader = new Loader();
+  this->loader->setDBAccessor(this->dbAccessor);
   this->scene = ui->openGLWidget;
   this->prefsEditor = new preferencesEditor();
 
