@@ -3,31 +3,6 @@
 #include <QOpenGLFunctions>
 #include <cmath>
 
-Cube::Cube() {
-  this->color = QVector3D(1.0f, 1.0f, 1.0f);
-  this->selected = false;
-}
-
-Cube::Cube(const Cube &anotherCube) {
-  this->dots = std::vector<Vertex>(anotherCube.dots);
-  this->color = QVector3D(anotherCube.color);
-  this->selected = anotherCube.selected;
-  this->transform = anotherCube.transform;
-}
-
-Cube::Cube(std::vector<Vertex> dots, QVector3D color)
-    : dots(dots), color(color) {
-  this->selected = false;
-}
-
-Cube::~Cube() { this->dots.clear(); }
-
-std::vector<Vertex> &Cube::getDots() { return this->dots; }
-
-QVector3D Cube::getColor() { return this->color; }
-
-void Cube::setColor(const QVector3D &color) { this->color = color; }
-
 bool Cube::isValid() {
   if (this->dots.size() != 4)
     return false;
@@ -48,7 +23,7 @@ bool Cube::isValid() {
   return isCube;
 }
 
-void Cube::reconstructCube() {
+void Cube::reconstruct() {
   Vertex VERTEX_FBL(this->dots[0].position());
   Vertex VERTEX_FBR(this->dots[1].position());
   Vertex VERTEX_FTL(this->dots[3].position());
@@ -74,10 +49,6 @@ void Cube::reconstructCube() {
       VERTEX_FTR, VERTEX_FBR, VERTEX_BBR, VERTEX_BTR};
   this->dots = std::move(vertices);
 }
-
-void Cube::setSelected(bool selected) { this->selected = selected; }
-
-bool Cube::isSelected() { return this->selected; }
 
 void Cube::draw() {
   if (this->isSelected()) {

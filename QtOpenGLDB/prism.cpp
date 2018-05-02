@@ -1,26 +1,7 @@
 #include "prism.h"
 #include <QOpenGLFunctions>
 
-Prism::Prism() {
-  this->color = QVector3D(1.0f, 1.0f, 1.0f);
-  this->selected = false;
-}
-
-Prism::Prism(const Prism &other) {
-  this->dots = std::vector<Vertex>(other.dots);
-  this->color = QVector3D(other.color);
-  this->selected = other.selected;
-  this->transform = other.transform;
-}
-
-Prism::Prism(std::vector<Vertex> dots, QVector3D color)
-    : dots(dots), color(color) {
-  this->selected = false;
-}
-
-Prism::~Prism() { this->dots.clear(); }
-
-void Prism::reconstructPrism() {
+void Prism::reconstruct() {
   Vertex BA(this->dots[0].position());
   Vertex BB(this->dots[1].position());
   Vertex BC(this->dots[2].position());
@@ -52,16 +33,6 @@ void Prism::reconstructPrism() {
                                   BF, BA, TA, TF};
   this->dots = std::move(vertices);
 }
-
-std::vector<Vertex> &Prism::getDots() { return this->dots; }
-
-QVector3D Prism::getColor() { return this->color; }
-
-void Prism::setColor(const QVector3D &color) { this->color = color; }
-
-void Prism::setSelected(bool selected) { this->selected = selected; }
-
-bool Prism::isSelected() { return this->selected; }
 
 void Prism::draw() {
   if (this->isSelected()) {

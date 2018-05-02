@@ -16,8 +16,7 @@
 
 class QOpenGLShaderProgram;
 
-class Scene : public QOpenGLWidget //, protected QOpenGLFunctions
-{
+class Scene : public QOpenGLWidget {
   Q_OBJECT
 public:
   Scene(QWidget *parent);

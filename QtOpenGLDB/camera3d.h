@@ -4,7 +4,7 @@
 #include "transform3d.h"
 
 class Camera3D {
- public:
+public:
   // Constants
   static const QVector3D LocalForward;
   static const QVector3D LocalUp;
@@ -37,16 +37,11 @@ class Camera3D {
   QVector3D right() const;
   QVector3D up() const;
 
- private:
+private:
   bool m_dirty;
   QVector3D m_translation;
   QQuaternion m_rotation;
   QMatrix4x4 m_world;
-
-#ifndef QT_NO_DATASTREAM
-  friend QDataStream &operator<<(QDataStream &out, const Camera3D &transform);
-  friend QDataStream &operator>>(QDataStream &in, Camera3D &transform);
-#endif
 };
 
 Q_DECLARE_TYPEINFO(Camera3D, Q_MOVABLE_TYPE);
@@ -80,14 +75,4 @@ inline void Camera3D::setRotation(float angle, float ax, float ay, float az) {
 inline const QVector3D &Camera3D::translation() const { return m_translation; }
 inline const QQuaternion &Camera3D::rotation() const { return m_rotation; }
 
-// Qt Streams
-#ifndef QT_NO_DEBUG_STREAM
-QDebug operator<<(QDebug dbg, const Camera3D &transform);
-#endif
-
-#ifndef QT_NO_DATASTREAM
-QDataStream &operator<<(QDataStream &out, const Camera3D &transform);
-QDataStream &operator>>(QDataStream &in, Camera3D &transform);
-#endif
-
-#endif  // CAMERA3D_H
+#endif // CAMERA3D_H

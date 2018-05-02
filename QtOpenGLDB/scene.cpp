@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "GL/GLU.h"
 #include "cube.h"
+#include "figure.h"
 #include "input.h"
 #include "vertex.h"
 #include <QColor>
@@ -15,10 +16,6 @@
 #include <algorithm>
 
 Scene::Scene(QWidget *parent) : QOpenGLWidget(parent) {
-  //  QSurfaceFormat format;
-  //  format.setDepthBufferSize(24);
-  //  format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-  //  setFormat(format);
   this->colorDialog = new QColorDialog(this);
   connect(this->colorDialog, SIGNAL(colorSelected(QColor)), this,
           SLOT(changeColor(QColor)));
@@ -134,19 +131,16 @@ void Scene::drawCoordAxes() {
 }
 
 void Scene::update() {
-  // Update input
   Input::update();
 
   static const float transSpeed = 0.5f;
   static const float rotSpeed = 0.5f;
 
-  // Camera Transformation
   if (Input::buttonPressed(Qt::RightButton)) {
-    // Handle rotations
     m_camera.rotate(-rotSpeed * Input::mouseDelta().x(), Camera3D::LocalUp);
     m_camera.rotate(-rotSpeed * Input::mouseDelta().y(), m_camera.right());
   }
-  // Handle translations
+
   QVector3D translation;
   if (Input::keyPressed(Qt::Key_W)) {
     translation += m_camera.forward();

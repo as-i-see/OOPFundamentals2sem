@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>TLEN</string>
+   <string>3D viewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="Scene" name="openGLWidget">

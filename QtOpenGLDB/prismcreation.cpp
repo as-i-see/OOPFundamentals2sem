@@ -39,7 +39,7 @@ void PrismCreation::on_pushButton_clicked(bool checked) {
   Vertex vertex(QVector3D(x, y, z));
   this->prism.getDots().push_back(vertex);
   if (nDotsRead == 6) {
-    this->prism.reconstructPrism();
+    this->prism.reconstruct();
     emit newPrismReady(this->prism);
     nDotsRead = -1;
     this->x->setText("0");

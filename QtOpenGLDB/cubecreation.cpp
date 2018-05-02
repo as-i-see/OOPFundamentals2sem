@@ -46,7 +46,7 @@ void CubeCreation::on_pushButton_clicked(bool checked) {
       alertErrorBox.setWindowTitle("ERROR");
       alertErrorBox.exec();
     } else {
-      this->cube.reconstructCube();
+      this->cube.reconstruct();
       emit newCubeReady(this->cube);
     }
     nDotsRead = -1;

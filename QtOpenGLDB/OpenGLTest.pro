@@ -38,7 +38,8 @@ SOURCES += \
     loader.cpp \
     prism.cpp \
     prismcreation.cpp \
-    preferenceseditor.cpp
+    preferenceseditor.cpp \
+    figure.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -55,7 +56,8 @@ HEADERS += \
     loader.h \
     prism.h \
     prismcreation.h \
-    preferenceseditor.h
+    preferenceseditor.h \
+    figure.h
 
 FORMS += \
     mainwindow.ui \
