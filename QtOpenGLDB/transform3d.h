@@ -46,12 +46,6 @@ private:
   QVector3D m_scale;
   QQuaternion m_rotation;
   QMatrix4x4 m_world;
-
-#ifndef QT_NO_DATASTREAM
-  friend QDataStream &operator<<(QDataStream &out,
-                                 const Transform3D &transform);
-  friend QDataStream &operator>>(QDataStream &in, Transform3D &transform);
-#endif
 };
 
 Q_DECLARE_TYPEINFO(Transform3D, Q_MOVABLE_TYPE);
@@ -103,15 +97,5 @@ inline const QVector3D &Transform3D::translation() const {
 }
 inline const QVector3D &Transform3D::scale() const { return m_scale; }
 inline const QQuaternion &Transform3D::rotation() const { return m_rotation; }
-
-// Qt Streams
-#ifndef QT_NO_DEBUG_STREAM
-QDebug operator<<(QDebug dbg, const Transform3D &transform);
-#endif
-
-#ifndef QT_NO_DATASTREAM
-QDataStream &operator<<(QDataStream &out, const Transform3D &transform);
-QDataStream &operator>>(QDataStream &in, Transform3D &transform);
-#endif
 
 #endif // TRANSFORM3D_H

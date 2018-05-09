@@ -40,7 +40,41 @@ SOURCES += \
     prismcreation.cpp \
     preferenceseditor.cpp \
     figure.cpp \
-    dbaccessor.cpp
+    dbaccessor.cpp \
+    camera3d.cpp \
+    cube.cpp \
+    cubecreation.cpp \
+    dbaccessor.cpp \
+    figure.cpp \
+    input.cpp \
+    loader.cpp \
+    main.cpp \
+    mainwindow.cpp \
+    newactionform.cpp \
+    preferenceseditor.cpp \
+    prism.cpp \
+    prismcreation.cpp \
+    saver.cpp \
+    scene.cpp \
+    toolbar.cpp \
+    transform3d.cpp \
+    camera3d.cpp \
+    cube.cpp \
+    cubecreation.cpp \
+    dbaccessor.cpp \
+    figure.cpp \
+    input.cpp \
+    loader.cpp \
+    main.cpp \
+    mainwindow.cpp \
+    newactionform.cpp \
+    preferenceseditor.cpp \
+    prism.cpp \
+    prismcreation.cpp \
+    saver.cpp \
+    scene.cpp \
+    toolbar.cpp \
+    transform3d.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -59,7 +93,41 @@ HEADERS += \
     prismcreation.h \
     preferenceseditor.h \
     figure.h \
-    dbaccessor.h
+    dbaccessor.h \
+    camera3d.h \
+    cube.h \
+    cubecreation.h \
+    dbaccessor.h \
+    figure.h \
+    input.h \
+    loader.h \
+    mainwindow.h \
+    newactionform.h \
+    preferenceseditor.h \
+    prism.h \
+    prismcreation.h \
+    saver.h \
+    scene.h \
+    toolbar.h \
+    transform3d.h \
+    vertex.h \
+    camera3d.h \
+    cube.h \
+    cubecreation.h \
+    dbaccessor.h \
+    figure.h \
+    input.h \
+    loader.h \
+    mainwindow.h \
+    newactionform.h \
+    preferenceseditor.h \
+    prism.h \
+    prismcreation.h \
+    saver.h \
+    scene.h \
+    toolbar.h \
+    transform3d.h \
+    vertex.h
 
 FORMS += \
     mainwindow.ui \
