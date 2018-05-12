@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>ActionBar.qml</file>
+        <file>images/logo.jpg</file>
+        <file>images/menu.png</file>
+        <file>images/favicon.png</file>
+        <file>Scene.qml</file>
+        <file>AnimatedEntity.qml</file>
+        <file>Cage.qml</file>
+    </qresource>
+</RCC>
