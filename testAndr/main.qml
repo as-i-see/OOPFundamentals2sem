@@ -3,6 +3,7 @@ import QtQuick.Controls 2.3
 import QtQuick.Window 2.10
 import QtQuick.Controls.Material 2.1
 import QtQuick.Dialogs 1.1
+import QtQuick.Layouts 1.3
 
 ApplicationWindow {
     id: root
@@ -25,15 +26,59 @@ ApplicationWindow {
             }
             Action {
                 text: qsTr("Add a new ball to the scene")
-                onTriggered: messageDialog.open()
+                onTriggered: {
+                    groupBox.visible = true
+                    gridLayout.visible = true
+                }
+
             }
         }
-        MessageDialog {
-            id: messageDialog
-            title: "New ball form"
-            standardButtons: StandardButton.Apply
-            onAccepted: {
-                close()
+
+        GroupBox {
+            id: groupBox
+            title: "Ball setup"
+            visible: false
+            GridLayout {
+                id: gridLayout
+                rows: 8
+                visible: false
+                flow: GridLayout.TopToBottom
+                anchors.fill: parent
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "pos x = "
+                }
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "pos y = "
+                }
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "pos z = "
+                }
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "vel x = "
+                }
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "vel y = "
+                }
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "vel z = "
+                }
+                TextField {
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "radius = "
+                }
+                Button {
+                    text: "Apply"
+                    action: {
+                        groupBox.visible = false
+                        gridLayout.visible = false
+                    }
+                }
             }
         }
 

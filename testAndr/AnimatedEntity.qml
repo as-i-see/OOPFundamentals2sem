@@ -27,7 +27,7 @@ Entity {
     components: [
         RenderSettings {
             activeFrameGraph: ForwardRenderer {
-                camera: camera
+                camera: camera                
                 clearColor: "#e1e6e8"
 
             }
