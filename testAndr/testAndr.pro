@@ -1,5 +1,5 @@
 QT += core gui widgets testlib opengl
-CONFIG += c++11 mobility
+CONFIG += c++11
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -20,9 +20,11 @@ SOURCES += \
     scene.cpp \
     ball.cpp \
     transform3d.cpp \
-    cage.cpp
+    cage.cpp \
+    test.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += \
+    resources.qrc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -35,7 +37,8 @@ HEADERS += \
     scene.h \
     ball.h \
     transform3d.h \
-    cage.h
+    cage.h \
+    test.h
 
 FORMS += \
     mainwindow.ui

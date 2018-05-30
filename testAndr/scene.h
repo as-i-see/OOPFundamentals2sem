@@ -13,12 +13,14 @@
 #include <QOpenGLWidget>
 #include <QtOpenGL/QtOpenGL>
 #include <QtOpenGL>
-#include <qopengl.h>
 
 class Scene : public QOpenGLWidget {
   Q_OBJECT
 public:
   Scene();
+  std::vector<Ball *> balls;
+  void createBallObjects();
+  void handleCollisions();
 public slots:
   void start();
 
@@ -31,7 +33,6 @@ protected slots:
 
 private:
   QOpenGLShaderProgram *program;
-  std::vector<Ball *> balls;
   QOpenGLBuffer cageVertex, ballsVertex;
   QOpenGLVertexArrayObject cageObject, ballsObject;
 
@@ -44,11 +45,12 @@ private:
   Transform3D transform;
   void genStartUp();
   std::vector<std::pair<int, int>> collisionsOccured();
-  void handleCollisions();
+
   void resolveBallsCollision(int, int);
 
-  void renderSphere(float cx, float cy, float cz, float r, int p,
-                    QVector3D ballColor);
+  void setupSpheres();
+  void createSphere(float r, std::vector<float> &vertices);
+  int p = 64;
 };
 
 #endif // SCENE_H
