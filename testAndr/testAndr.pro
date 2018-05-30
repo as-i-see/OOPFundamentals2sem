@@ -1,5 +1,6 @@
-QT += quick quickcontrols2 3dcore 3drender 3dinput 3dlogic 3dextras 3dquick 3danimation qml
-CONFIG += c++11
+QT += core gui widgets testlib opengl
+CONFIG += c++11 mobility
+TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -13,17 +14,28 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+    mainwindow.cpp \
+    toolbar.cpp \
+    scene.cpp \
+    ball.cpp \
+    transform3d.cpp \
+    cage.cpp
 
 RESOURCES += qml.qrc
-
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
-
-# Additional import path used to resolve QML modules just for Qt Quick Designer
-QML_DESIGNER_IMPORT_PATH =
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+HEADERS += \
+    mainwindow.h \
+    toolbar.h \
+    scene.h \
+    ball.h \
+    transform3d.h \
+    cage.h
+
+FORMS += \
+    mainwindow.ui

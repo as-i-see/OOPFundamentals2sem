@@ -53,5 +53,17 @@ Entity {
         components: [ sphereMesh, material ]
     }
 
+
+    property Component ballComponent: BallComponent.component
+
+    Connections {
+        target: root
+        onBallRequest: {
+            if (ballComponent.status == Component.Ready) {
+                var ball = ballComponent.create
+            }
+        }
+    }
+
     Cage {}
 }

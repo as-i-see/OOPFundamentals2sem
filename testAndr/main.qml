@@ -8,8 +8,8 @@ import QtQuick.Layouts 1.3
 ApplicationWindow {
     id: root
     visible: true
-    width: 640
-    height: 480
+    //width: 640
+    //height: 480
     title: qsTr("Лабораторная работа №1")
 
     header: ActionBar {
@@ -25,67 +25,21 @@ ApplicationWindow {
                 text: qsTr("Load a clean scene")
             }
             Action {
+                id: callNewBall
                 text: qsTr("Add a new ball to the scene")
                 onTriggered: {
-                    groupBox.visible = true
-                    gridLayout.visible = true
-                }
-
-            }
-        }
-
-        GroupBox {
-            id: groupBox
-            title: "Ball setup"
-            visible: false
-            GridLayout {
-                id: gridLayout
-                rows: 8
-                visible: false
-                flow: GridLayout.TopToBottom
-                anchors.fill: parent
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "pos x = "
-                }
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "pos y = "
-                }
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "pos z = "
-                }
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "vel x = "
-                }
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "vel y = "
-                }
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "vel z = "
-                }
-                TextField {
-                    horizontalAlignment: TextInput.AlignHCenter
-                    placeholderText: "radius = "
-                }
-                Button {
-                    text: "Apply"
-                    action: {
-                        groupBox.visible = false
-                        gridLayout.visible = false
-                    }
+                    root.setupAsked()
+                    root.looseFocus()
                 }
             }
         }
-
     }
 
-    Scene {
+    signal setupAsked;
+    signal getFocus;
+    signal looseFocus;
 
-    }
+    Scene {}
+    InputBall {}
 
 }
