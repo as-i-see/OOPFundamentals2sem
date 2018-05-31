@@ -18,7 +18,8 @@ public:
 
 private:
   Ui::MainWindow *ui;
-  ToolBar *toolBar;
+  QToolBar *toolBar;
+  // ToolBar *toolBar;
   Scene *scene;
 };
 

@@ -2,7 +2,6 @@
 #define SCENE_H
 
 #include "ball.h"
-#include "transform3d.h"
 #include <QObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLContext>
@@ -25,7 +24,8 @@ public:
   void genStartUp();
   void resolveBallsCollision(int, int);
 public slots:
-  void start();
+  void restart();
+  void setElasticFactor(int);
 
 protected:
   void initializeGL();
@@ -41,11 +41,9 @@ private:
 
   int position;
   int normal;
-
   int modelToWorld;
   int worldToCamera;
   int cameraToView;
-
   int color;
   int lightDir;
   int lightColor;
@@ -53,11 +51,11 @@ private:
   int shine;
 
   QMatrix4x4 projection;
-  Transform3D transform;
 
   void setupSpheres();
   void createSphere(float r, std::vector<float> &vertices);
-  int p = 64;
+  int p = 96;
+  double R = 1.0;
 };
 
 #endif // SCENE_H

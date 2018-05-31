@@ -5,18 +5,15 @@
 
 #define PI 3.14159265
 
-Scene::Scene() {
-  srand(time(NULL));
-  transform.translate(0.0f, 0.0f, -175.0f);
-}
+Scene::Scene() { srand(time(NULL)); }
 
 void Scene::initializeGL() {
   connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
 
-  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  glClearColor(230.0f / 255.0f, 1.0f, 1.0f, 0.0f);
   glClearDepthf(1.0f);
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+  glDepthFunc(GL_LESS);
   glLineWidth(5.0f);
 
   program = new QOpenGLShaderProgram();
@@ -37,6 +34,13 @@ void Scene::initializeGL() {
   lightColor = program->uniformLocation("lightColor");
   specLightColor = program->uniformLocation("speclightColor");
   shine = program->uniformLocation("shine");
+  QMatrix4x4 worldToCameraMatrix;
+  worldToCameraMatrix.translate(0.0f, 0.0f, -175.0f);
+  program->setUniformValue(worldToCamera, worldToCameraMatrix);
+  program->setUniformValue(lightDir, QVector3D(1.0f, 1.25f, -2.0f));
+  program->setUniformValue(lightColor, QVector3D(0.4f, 0.4f, 0.4f));
+  program->setUniformValue(specLightColor, QVector3D(0.7f, 0.7f, 0.7f));
+  program->setAttributeValue(shine, 0.2f);
 
   createBallObjects();
   genStartUp();
@@ -62,22 +66,17 @@ void Scene::initializeGL() {
 void Scene::resizeGL(int w, int h) {
   glViewport(0, 0, w, h);
   projection.setToIdentity();
-  projection.perspective(60.0f, w / float(h), 0.1f, 500.0f);
+  projection.perspective(60.0f, w / float(h), 0.2f, 500.0f);
 }
 
 void Scene::paintGL() {
   handleCollisions();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  int nVerticesInOneSphere = p * (p + 1);
+  int nVerticesInOneSphere = 2 * p * (p + 1);
 
   program->bind();
   program->setUniformValue(cameraToView, projection);
-  program->setUniformValue(worldToCamera, transform.toMatrix());
-  program->setUniformValue(lightDir, QVector3D(1.0f, 1.0f, 1.0f));
-  program->setUniformValue(lightColor, QVector3D(1.0f, 1.0f, 1.0f));
-  program->setUniformValue(specLightColor, QVector3D(1.0f, 1.0f, 1.0f));
-  program->setAttributeValue(shine, 0.3);
 
   cageObject.bind();
 
@@ -91,10 +90,10 @@ void Scene::paintGL() {
 
   for (int i = 0; i < 3; i++) {
     program->setUniformValue(color, balls[i]->color);
-    program->setUniformValue(modelToWorld, balls[i]->transform.toMatrix());
+    program->setUniformValue(modelToWorld, balls[i]->toMatrix());
     glDrawArrays(GL_TRIANGLE_STRIP, i * nVerticesInOneSphere,
                  nVerticesInOneSphere);
-    balls[i]->transform.translate(balls[i]->direction);
+    balls[i]->translate(balls[i]->direction);
   }
 
   ballsObject.release();
@@ -105,8 +104,8 @@ void Scene::paintGL() {
 void Scene::update() { QOpenGLWidget::update(); }
 
 void Scene::createBallObjects() {
-  Ball *ball1 = new Ball(8);
-  ball1->color = QVector3D(215 / 255.0f, 72 / 255.0f, 29 / 255.0f);
+  Ball *ball1 = new Ball(14);
+  ball1->color = QVector3D(1.0f, 51.0f / 255.0f, 0.0f);
   this->balls.push_back(ball1);
   Ball *ball2 = new Ball(12);
   ball2->color = QVector3D(255 / 255.0f, 243 / 255.0f, 33 / 255.0f);
@@ -117,9 +116,9 @@ void Scene::createBallObjects() {
 }
 
 void Scene::genStartUp() {
-  this->balls[0]->transform.setTranslation(0, 16.6, 0);
-  this->balls[1]->transform.setTranslation(16.6, -16.6, 0);
-  this->balls[2]->transform.setTranslation(-16.6, -16.6, 0);
+  this->balls[0]->setTranslation(0, 16.6, 0);
+  this->balls[1]->setTranslation(16.6, -16.6, 0);
+  this->balls[2]->setTranslation(-16.6, -16.6, 0);
   for (int i = 0; i < 3; i++) {
     this->balls[i]->direction.setX(-50.0f + (float)(rand() % 100));
     this->balls[i]->direction.setY(-50.0f + (float)(rand() % 100));
@@ -128,7 +127,7 @@ void Scene::genStartUp() {
   }
 }
 
-void Scene::start() { genStartUp(); }
+void Scene::restart() { genStartUp(); }
 
 void Scene::handleCollisions() {
   auto collisions = collisionsOccured();
@@ -160,9 +159,9 @@ std::vector<std::pair<int, int>> Scene::collisionsOccured() {
 
   std::vector<std::pair<int, int>> collisions;
   std::vector<QVector3D> centers = {
-      this->balls[0]->transform.toMatrix() * QVector3D(0, 0, 0),
-      this->balls[1]->transform.toMatrix() * QVector3D(0, 0, 0),
-      this->balls[2]->transform.toMatrix() * QVector3D(0, 0, 0)};
+      this->balls[0]->toMatrix() * QVector3D(0, 0, 0),
+      this->balls[1]->toMatrix() * QVector3D(0, 0, 0),
+      this->balls[2]->toMatrix() * QVector3D(0, 0, 0)};
   QVector3D FTL(-50, 50, -50);
   QVector3D FBL(-50, -50, -50);
   QVector3D FBR(50, -50, -50);
@@ -209,14 +208,17 @@ std::vector<std::pair<int, int>> Scene::collisionsOccured() {
 }
 
 void Scene::resolveBallsCollision(int bi1, int bi2) {
-  QVector3D center(0.0, 0.0, 0.0);
-  Ball *b1 = this->balls[bi1 - 6];
-  Ball *b2 = this->balls[bi2 - 6];
-  QVector3D c1 = b1->transform.toMatrix() * center;
-  QVector3D c2 = b2->transform.toMatrix() * center;
+  double theta2, phi2, st, ct, sp, cp, vx1r, vy1r, vz1r, fvz1r, thetav, phiv,
+      dr, alpha, beta, sbeta, cbeta, a, dvz2, vx2r, vy2r, vz2r, vx_cm, vy_cm,
+      vz_cm;
 
   /// **************************
   ///   initialize some variables
+  QVector3D center(0.0, 0.0, 0.0);
+  Ball *b1 = this->balls[bi1 - 6];
+  Ball *b2 = this->balls[bi2 - 6];
+  QVector3D c1 = b1->toMatrix() * center;
+  QVector3D c2 = b2->toMatrix() * center;
   double r12 = b1->radius + b2->radius;
   double m1 = b1->radius;
   double m2 = b2->radius;
@@ -235,8 +237,9 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
   double vy21 = vy2 - vy1;
   double vz21 = vz2 - vz1;
 
-  double theta2, phi2, st, ct, sp, cp, vx1r, vy1r, vz1r, fvz1r, thetav, phiv,
-      dr, alpha, beta, sbeta, cbeta, a, dvz2, vx2r, vy2r, vz2r;
+  vx_cm = (m1 * vx1 + m2 * vx2) / (m1 + m2);
+  vy_cm = (m1 * vy1 + m2 * vy2) / (m1 + m2);
+  vz_cm = (m1 * vz1 + m2 * vz2) / (m1 + m2);
 
   /// **************************
   ///   calculate relative distance and relative speed ***
@@ -250,8 +253,8 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
 
   /// **************************
   ///   shift coordinate system so that ball 1 is at the origin
-  b2->transform.setTranslation(x21, y21, z21);
-  c2 = b2->transform.toMatrix() * center;
+  b2->setTranslation(x21, y21, z21);
+  c2 = b2->toMatrix() * center;
 
   /// **************************
   ///   boost coordinate system so that ball 2 is resting
@@ -306,8 +309,7 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
 
   /// **************************
   ///   update positions and reverse the coordinate shift ATTENTION
-  b2->transform.setTranslation(c2.x() + c1.x(), c2.y() + c1.y(),
-                               c2.z() + c1.z());
+  b2->setTranslation(c2.x() + c1.x(), c2.y() + c1.y(), c2.z() + c1.z());
 
   /// **************************
   ///   update velocities
@@ -331,26 +333,33 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
   b2->direction = QVector3D((ct * cp * vx2r - sp * vy2r + st * cp * vz2r + vx2),
                             (ct * sp * vx2r + cp * vy2r + st * sp * vz2r + vy2),
                             (ct * vz2r - st * vx2r + vz2));
+
+  b1->direction = QVector3D(((b1->direction.x() - vx_cm) * R + vx_cm),
+                            ((b1->direction.y() - vy_cm) * R + vy_cm),
+                            ((b1->direction.z() - vz_cm) * R + vz_cm));
+  b2->direction = QVector3D(((b2->direction.x() - vx_cm) * R + vx_cm),
+                            ((b2->direction.y() - vy_cm) * R + vy_cm),
+                            ((b2->direction.z() - vz_cm) * R + vz_cm));
 }
 
 void Scene::setupSpheres() {
   std::vector<float> vertices;
 
-  createSphere(8, vertices);
+  createSphere(14, vertices);
   createSphere(12, vertices);
   createSphere(16, vertices);
 
   program->bind();
   this->ballsVertex.create();
-
   this->ballsVertex.bind();
   this->ballsVertex.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  this->ballsVertex.allocate(vertices.data(), 3 * (p / 2) * (p + 1) * 6 * 4);
+  this->ballsVertex.allocate(vertices.data(), vertices.size() * 4);
   this->ballsObject.create();
   this->ballsObject.bind();
   program->enableAttributeArray(position);
-  program->setAttributeBuffer(position, GL_FLOAT, 0, 3, 0);
-
+  program->setAttributeBuffer(position, GL_FLOAT, 0, 3, 12);
+  program->enableAttributeArray(normal);
+  program->setAttributeBuffer(normal, GL_FLOAT, 12, 3, 12);
   this->ballsObject.release();
   this->ballsVertex.release();
   program->release();
@@ -379,6 +388,9 @@ void Scene::createSphere(float r, std::vector<float> &vertices) {
       vertices.push_back(px);
       vertices.push_back(py);
       vertices.push_back(pz);
+      vertices.push_back(ex);
+      vertices.push_back(ey);
+      vertices.push_back(ez);
 
       ex = cosf(theta1) * cosf(theta3);
       ey = sinf(theta1);
@@ -390,6 +402,11 @@ void Scene::createSphere(float r, std::vector<float> &vertices) {
       vertices.push_back(px);
       vertices.push_back(py);
       vertices.push_back(pz);
+      vertices.push_back(ex);
+      vertices.push_back(ey);
+      vertices.push_back(ez);
     }
   }
 }
+
+void Scene::setElasticFactor(int factor) { this->R = factor / 10.0; }

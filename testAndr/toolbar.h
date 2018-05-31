@@ -4,6 +4,7 @@
 #include "scene.h"
 #include <QIcon>
 #include <QObject>
+#include <QSlider>
 #include <QToolBar>
 
 class ToolBar : public QToolBar {
@@ -12,7 +13,8 @@ public:
   ToolBar(QWidget *, Scene *);
 
 private:
-  QAction *play;
+  QAction *restart;
+  QSlider *slider;
   Scene *scene;
 };
 

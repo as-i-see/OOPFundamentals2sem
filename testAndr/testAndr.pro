@@ -16,10 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     mainwindow.cpp \
-    toolbar.cpp \
     scene.cpp \
     ball.cpp \
-    transform3d.cpp \
     cage.cpp \
     test.cpp
 
@@ -33,10 +31,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     mainwindow.h \
-    toolbar.h \
     scene.h \
     ball.h \
-    transform3d.h \
     cage.h \
     test.h
 
