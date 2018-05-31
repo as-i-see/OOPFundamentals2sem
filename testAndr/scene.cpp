@@ -29,9 +29,14 @@ void Scene::initializeGL() {
 
   color = program->uniformLocation("color");
   position = program->attributeLocation("a_Position");
+  normal = program->attributeLocation("a_Normal");
   modelToWorld = program->uniformLocation("modelToWorld");
   worldToCamera = program->uniformLocation("worldToCamera");
   cameraToView = program->uniformLocation("cameraToView");
+  lightDir = program->uniformLocation("lightDir");
+  lightColor = program->uniformLocation("lightColor");
+  specLightColor = program->uniformLocation("speclightColor");
+  shine = program->uniformLocation("shine");
 
   createBallObjects();
   genStartUp();
@@ -69,6 +74,10 @@ void Scene::paintGL() {
   program->bind();
   program->setUniformValue(cameraToView, projection);
   program->setUniformValue(worldToCamera, transform.toMatrix());
+  program->setUniformValue(lightDir, QVector3D(1.0f, 1.0f, 1.0f));
+  program->setUniformValue(lightColor, QVector3D(1.0f, 1.0f, 1.0f));
+  program->setUniformValue(specLightColor, QVector3D(1.0f, 1.0f, 1.0f));
+  program->setAttributeValue(shine, 0.3);
 
   cageObject.bind();
 

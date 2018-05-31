@@ -39,11 +39,19 @@ private:
   QOpenGLBuffer cageVertex, ballsVertex;
   QOpenGLVertexArrayObject cageObject, ballsObject;
 
-  int color;
   int position;
+  int normal;
+
   int modelToWorld;
   int worldToCamera;
   int cameraToView;
+
+  int color;
+  int lightDir;
+  int lightColor;
+  int specLightColor;
+  int shine;
+
   QMatrix4x4 projection;
   Transform3D transform;
 
