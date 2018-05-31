@@ -225,12 +225,9 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
   double vx21 = vx2 - vx1;
   double vy21 = vy2 - vy1;
   double vz21 = vz2 - vz1;
-  double vx_cm = (m1 * vx1 + m2 * vx2) / (m1 + m2);
-  double vy_cm = (m1 * vy1 + m2 * vy2) / (m1 + m2);
-  double vz_cm = (m1 * vz1 + m2 * vz2) / (m1 + m2);
 
   double theta2, phi2, st, ct, sp, cp, vx1r, vy1r, vz1r, fvz1r, thetav, phiv,
-      dr, alpha, beta, sbeta, cbeta, dc, sqs, t, a, dvz2, vx2r, vy2r, vz2r;
+      dr, alpha, beta, sbeta, cbeta, a, dvz2, vx2r, vy2r, vz2r;
 
   /// **************************
   ///   calculate relative distance and relative speed ***
@@ -249,7 +246,7 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
 
   /// **************************
   ///   boost coordinate system so that ball 2 is resting
-  b1->direction = QVector3D(-vx21, -vy21, -vz21);
+  b1->direction = QVector3D(-1 * vx21, -1 * vy21, -1 * vz21);
   vx1 = b1->direction.x();
   vy1 = b1->direction.y();
   vz1 = b1->direction.z();
@@ -263,7 +260,7 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
     phi2 = atan2(c2.y(), c2.x());
   }
   st = sin(theta2);
-  ct = cos(theta2);
+  ct = c2.z() / d;
   sp = sin(phi2);
   cp = cos(phi2);
 
@@ -325,20 +322,9 @@ void Scene::resolveBallsCollision(int bi1, int bi2) {
   b2->direction = QVector3D((ct * cp * vx2r - sp * vy2r + st * cp * vz2r + vx2),
                             (ct * sp * vx2r + cp * vy2r + st * sp * vz2r + vy2),
                             (ct * vz2r - st * vx2r + vz2));
-
-  /// **************************
-  ///   velocity correction for inelastic collisions
-  double R = 1.0;
-  b1->direction = QVector3D(((b1->direction.x() - vx_cm) * R + vx_cm),
-                            ((b1->direction.y() - vy_cm) * R + vy_cm),
-                            ((b1->direction.z() - vz_cm) * R + vz_cm));
-  b2->direction = QVector3D(((b2->direction.x() - vx_cm) * R + vx_cm),
-                            ((b2->direction.y() - vy_cm) * R + vy_cm),
-                            ((b2->direction.z() - vz_cm) * R + vz_cm));
 }
 
 void Scene::setupSpheres() {
-  GLfloat /*vertices[p * 6 + 6], */ normals[p * 6 + 6], texCoords[p * 4 + 4];
   std::vector<float> vertices;
 
   createSphere(8, vertices);
@@ -381,19 +367,9 @@ void Scene::createSphere(float r, std::vector<float> &vertices) {
       py = cy + r * ey;
       pz = cz + r * ez;
 
-      //      vertices[((6 * j) + (0 % 6))] = px;
-      //      vertices[(6 * j) + (1 % 6)] = py;
-      //      vertices[(6 * j) + (2 % 6)] = pz;
       vertices.push_back(px);
       vertices.push_back(py);
       vertices.push_back(pz);
-
-      //      normals[(6 * j) + (0 % 6)] = ex;
-      //      normals[(6 * j) + (1 % 6)] = ey;
-      //      normals[(6 * j) + (2 % 6)] = ez;
-
-      //      texCoords[(4 * j) + (0 % 4)] = -(j / (float)p);
-      //      texCoords[(4 * j) + (1 % 4)] = 2 * (i + 1) / (float)p;
 
       ex = cosf(theta1) * cosf(theta3);
       ey = sinf(theta1);
@@ -402,19 +378,9 @@ void Scene::createSphere(float r, std::vector<float> &vertices) {
       py = cy + r * ey;
       pz = cz + r * ez;
 
-      //      vertices[(6 * j) + (3 % 6)] = px;
-      //      vertices[(6 * j) + (4 % 6)] = py;
-      //      vertices[(6 * j) + (5 % 6)] = pz;
       vertices.push_back(px);
       vertices.push_back(py);
       vertices.push_back(pz);
-
-      //      normals[(6 * j) + (3 % 6)] = ex;
-      //      normals[(6 * j) + (4 % 6)] = ey;
-      //      normals[(6 * j) + (5 % 6)] = ez;
-
-      //      texCoords[(4 * j) + (2 % 4)] = -(j / (float)p);
-      //      texCoords[(4 * j) + (3 % 4)] = 2 * i / (float)p;
     }
   }
 }

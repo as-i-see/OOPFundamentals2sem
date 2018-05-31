@@ -3,7 +3,6 @@
 
 #include "scene.h"
 #include <QIcon>
-#include <QLineEdit>
 #include <QObject>
 #include <QToolBar>
 
@@ -13,7 +12,6 @@ public:
   ToolBar(QWidget *, Scene *);
 
 private:
-  //  QLineEdit *lineEdit;
   QAction *play;
   Scene *scene;
 };

@@ -8,7 +8,6 @@
 class Ball {
 public:
   Ball(float);
-  std::vector<QVector3D> dots;
   Transform3D transform;
   QVector3D direction;
   float radius;

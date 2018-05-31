@@ -21,6 +21,9 @@ public:
   std::vector<Ball *> balls;
   void createBallObjects();
   void handleCollisions();
+  std::vector<std::pair<int, int>> collisionsOccured();
+  void genStartUp();
+  void resolveBallsCollision(int, int);
 public slots:
   void start();
 
@@ -43,10 +46,6 @@ private:
   int cameraToView;
   QMatrix4x4 projection;
   Transform3D transform;
-  void genStartUp();
-  std::vector<std::pair<int, int>> collisionsOccured();
-
-  void resolveBallsCollision(int, int);
 
   void setupSpheres();
   void createSphere(float r, std::vector<float> &vertices);

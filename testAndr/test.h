@@ -9,7 +9,14 @@ class Test : public QObject {
 public:
   Test();
 private Q_SLOTS:
-  void oppositeVelocityCollision();
+  void findBallWallBrinkCollision();
+  void findBallInWallCollision();
+  void findBallBallBrinkCollision();
+  void findBallInBallCollision();
+  void fendOffTopWall();
+  void fendOffFrontWall();
+  void fendOffLeftWall();
+  void resolveOppositeVelocityCollision();
 
 private:
   Scene *scene;
