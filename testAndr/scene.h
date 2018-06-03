@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include "ball.h"
+#include "collisionsmaster.h"
 #include <QObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLContext>
@@ -23,6 +24,7 @@ public:
   std::vector<std::pair<int, int>> collisionsOccured();
   void genStartUp();
   void resolveBallsCollision(int, int);
+  CollisionsMaster *collisionsMaster;
 public slots:
   void restart();
   void setElasticFactor(int);
@@ -53,9 +55,8 @@ private:
   QMatrix4x4 projection;
 
   void setupSpheres();
-  void createSphere(float r, std::vector<float> &vertices);
   int p = 96;
-  double R = 1.0;
+  int cageRadius = 50;
 };
 
 #endif // SCENE_H

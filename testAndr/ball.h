@@ -18,6 +18,7 @@ public:
   void setTranslation(float x, float y, float z);
   const QVector3D &translation() const;
   const QMatrix4x4 &toMatrix();
+  static void insertBall(float, float, std::vector<float> &);
 
 private:
   QVector3D translationVec;

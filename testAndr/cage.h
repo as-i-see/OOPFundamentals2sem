@@ -5,8 +5,9 @@
 
 class Cage {
 public:
-  Cage();
+  Cage(int);
   std::vector<QVector3D> dots;
+  QVector3D FTL, FBL, FBR, FTR, BTL, BBL, BBR, BTR;
 };
 
 #endif // CAGE_H

@@ -19,7 +19,8 @@ SOURCES += \
     scene.cpp \
     ball.cpp \
     cage.cpp \
-    test.cpp
+    test.cpp \
+    collisionsmaster.cpp
 
 RESOURCES += \
     resources.qrc
@@ -34,7 +35,8 @@ HEADERS += \
     scene.h \
     ball.h \
     cage.h \
-    test.h
+    test.h \
+    collisionsmaster.h
 
 FORMS += \
     mainwindow.ui

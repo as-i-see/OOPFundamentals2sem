@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "collisionsmaster.h"
 #include "ui_mainwindow.h"
 #include <QApplication>
 #include <QScreen>
