@@ -35,12 +35,13 @@ int CollisionsMaster::handleCollisions(std::vector<Ball *> &balls) {
 
 std::vector<std::pair<int, int>> CollisionsMaster::collisionsOccured() {
   std::vector<std::pair<int, int>> collisions;
-  std::vector<QVector3D> centers = {
-      this->balls[0]->toMatrix() * QVector3D(0, 0, 0),
-      this->balls[1]->toMatrix() * QVector3D(0, 0, 0),
-      this->balls[2]->toMatrix() * QVector3D(0, 0, 0)};
+  QVector3D center(0, 0, 0);
+  std::vector<QVector3D> centers;
+  for (int i = 0; i < this->balls.size(); i++) {
+    centers.push_back(this->balls[i]->toMatrix() * center);
+  }
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < this->balls.size(); i++) {
     float dist0 = (float)fabs(
         centers[i].distanceToPlane(cage->FTL, cage->BTL, cage->BTR));
     if (dist0 <= this->balls[i]->radius)
@@ -67,18 +68,13 @@ std::vector<std::pair<int, int>> CollisionsMaster::collisionsOccured() {
       collisions.push_back({6 + i, 5});
   }
 
-  float dist67 = centers[0].distanceToPoint(centers[1]);
-  if (dist67 <= this->balls[0]->radius + this->balls[1]->radius)
-    collisions.push_back({6, 7});
-
-  float dist68 = centers[0].distanceToPoint(centers[2]);
-  if (dist68 <= this->balls[0]->radius + this->balls[2]->radius)
-    collisions.push_back({6, 8});
-
-  float dist78 = centers[1].distanceToPoint(centers[2]);
-  if (dist78 <= this->balls[1]->radius + this->balls[2]->radius)
-    collisions.push_back({7, 8});
-
+  for (int i = 0; i < this->balls.size() - 1; i++) {
+    for (int j = i + 1; j < this->balls.size(); j++) {
+      float dist = centers[i].distanceToPoint(centers[j]);
+      if (dist <= this->balls[i]->radius + this->balls[j]->radius)
+        collisions.push_back({i + 6, j + 6});
+    }
+  }
   return collisions;
 }
 
