@@ -14,7 +14,7 @@ Dialog::Dialog(QWidget *parent) : QWidget(parent) {
 
   if (!server.listen()) {
     QMessageBox::critical(
-        this, tr("Threaded Fortune Server"),
+        this, tr("RPCServer"),
         tr("Unable to start the server: %1.").arg(server.errorString()));
     close();
     return;
@@ -49,5 +49,5 @@ Dialog::Dialog(QWidget *parent) : QWidget(parent) {
   mainLayout->addWidget(statusLabel);
   mainLayout->addLayout(buttonLayout);
   setLayout(mainLayout);
-  setWindowTitle(tr("Threaded PRCServer"));
+  setWindowTitle(tr("PRCServer"));
 }

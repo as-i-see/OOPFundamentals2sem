@@ -5,7 +5,7 @@
 
 Client::Client(QWidget *parent)
     : QDialog(parent), hostCombo(new QComboBox), portLineEdit(new QLineEdit),
-      connectButton(new QPushButton(tr("Connect"))),
+      connectButton(new QPushButton(tr("New Console"))),
       tcpSocket(new QTcpSocket(this)) {
   setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
   hostCombo->setEditable(true);
@@ -51,17 +51,13 @@ Client::Client(QWidget *parent)
   buttonBox->addButton(connectButton, QDialogButtonBox::ActionRole);
   buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
 
-  in.setDevice(tcpSocket);
-  in.setVersion(QDataStream::Qt_4_0);
-
   connect(hostCombo, &QComboBox::editTextChanged, this,
           &Client::enableConnectButton);
   connect(portLineEdit, &QLineEdit::textChanged, this,
           &Client::enableConnectButton);
   connect(connectButton, &QAbstractButton::clicked, this,
-          &Client::requestNewFortune);
+          &Client::requestNewConsole);
   connect(quitButton, &QAbstractButton::clicked, this, &QWidget::close);
-  connect(tcpSocket, &QIODevice::readyRead, this, &Client::readFortune);
   connect(tcpSocket,
           QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
           this, &Client::displayError);
@@ -124,30 +120,11 @@ Client::Client(QWidget *parent)
   }
 }
 
-void Client::requestNewFortune() {
+void Client::requestNewConsole() {
   connectButton->setEnabled(false);
   tcpSocket->abort();
   tcpSocket->connectToHost(hostCombo->currentText(),
                            portLineEdit->text().toInt());
-}
-
-void Client::readFortune() {
-  in.startTransaction();
-
-  QString nextFortune;
-  in >> nextFortune;
-
-  if (!in.commitTransaction())
-    return;
-
-  if (nextFortune == currentFortune) {
-    QTimer::singleShot(0, this, &Client::requestNewFortune);
-    return;
-  }
-
-  currentFortune = nextFortune;
-  statusLabel->setText(currentFortune);
-  connectButton->setEnabled(true);
 }
 
 void Client::displayError(QAbstractSocket::SocketError socketError) {

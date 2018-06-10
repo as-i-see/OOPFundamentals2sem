@@ -1,7 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "thread.h"
 #include <QStringList>
 #include <QTcpServer>
 
@@ -13,9 +12,6 @@ public:
 
 protected:
   void incomingConnection(qintptr socketDescriptor) override;
-
-private:
-  QStringList fortunes;
 };
 
 #endif // SERVER_H

@@ -25,8 +25,7 @@ public:
   explicit Client(QWidget *parent = nullptr);
 
 private slots:
-  void requestNewFortune();
-  void readFortune();
+  void requestNewConsole();
   void displayError(QAbstractSocket::SocketError socketError);
   void enableConnectButton();
   void sessionOpened();
@@ -38,8 +37,6 @@ private:
   QPushButton *connectButton = nullptr;
 
   QTcpSocket *tcpSocket = nullptr;
-  QDataStream in;
-  QString currentFortune;
 
   QNetworkSession *networkSession = nullptr;
 };
